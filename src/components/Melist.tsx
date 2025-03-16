@@ -11,7 +11,6 @@ function Melist({ displayMode } : MelistProps) {
                 <div>
                     <div className="font-bold text-xl">Kylie Jenner</div>
                     <div className="text-xs">24 products</div>
-                    {/* on this */}
                 </div>
             </div>
             <div className="flex flex-col gap-2">
