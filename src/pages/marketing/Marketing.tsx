@@ -1,7 +1,7 @@
 
 function Marketing() {
     return (
-        <div>test</div>
+        <div>marketing</div>
     )
 }
 

@@ -2,10 +2,10 @@ import { HeartIcon } from "@heroicons/react/24/outline";
 
 interface MelistProps {
     displayMode: string;
-  }
+}
 function Melist({ displayMode } : MelistProps) {
     return (
-        <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-116">
+        <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-md">
             <div className="flex gap-4">
                 <div className="bg-white rounded-full size-12" />
                 <div>
