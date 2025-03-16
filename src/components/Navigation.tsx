@@ -1,20 +1,29 @@
-import { useState } from "react"
-import useOutsideClick from "../hooks/useOutsideClick";
+import { Link, useLocation, useNavigate } from "react-router"
+import { useEffect, useState } from "react"
 
 function Navigation() {
-    // const [searchClicked, setSearchClicked] = useState(false);
-    const { ref, isActive, setIsActive } = useOutsideClick(false);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [expandSearchbar, setExpandSearchbar] = useState(false)
+
+    useEffect(() => {
+        if (!location.pathname.includes('search')) {
+            setExpandSearchbar(false)
+        }
+    },[location])
     return (
         <nav>
             <div className="mx-auto max-w-5xl p-4">
                 <div className="flex justify-between items-center gap-6">
                     <div className="flex gap-4 w-full">
-                        <div className="font-bold text-3xl">melist</div>
+                        <Link to="profile" className="font-bold text-3xl">melist</Link>
                         <input 
-                            ref={ref}
-                            className={`py-2 px-4 bg-gray-200 rounded-md ${isActive ? "w-full" : "w-52"} transition-[width] duration-100`}
+                            className={`py-2 px-4 bg-gray-200 rounded-md ${expandSearchbar ? "w-full" : "w-52"} transition-[width] duration-100`}
                             placeholder="search here" 
-                            onSelect={() => setIsActive(true)}
+                            onSelect={() => {
+                                setExpandSearchbar(true);
+                                navigate("search")
+                            }}
                         />
                     </div>
                     <div className="flex items-center gap-4">

@@ -6,6 +6,7 @@ import Marketing from './pages/marketing/Marketing.tsx'
 import { BrowserRouter, Route, Routes } from 'react-router'
 import Navigation from './components/Navigation.tsx'
 import Profile from './pages/app/Profile.tsx'
+import Search from './pages/app/Search.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -14,6 +15,7 @@ createRoot(document.getElementById('root')!).render(
       <Routes>
         <Route index element={<Marketing />} />
         <Route path="/:userId" element={<Profile />} />
+        <Route path="/search" element={<Search />} />
         <Route path="/test" element={<App />} />
       </Routes>
     </BrowserRouter>
