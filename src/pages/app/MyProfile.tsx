@@ -22,7 +22,7 @@ function MyProfile() {
                                 )}
                                 {clickedProduct && (
                                     <>
-                                        <div className="flex items-center hover:underline" onClick={() => setClickedProduct(null)}>
+                                        <div className="flex items-center text-sm hover:underline" onClick={() => setClickedProduct(null)}>
                                             <ArrowLeftIcon className="size-4 mr-1" /> back
                                         </div>
                                         <div className="mt-6">
