@@ -6,11 +6,11 @@ import { PlusCircleIcon } from "@heroicons/react/16/solid"
 import Toggle from "../../components/Toggle"
 import { useSearchParams } from "react-router"
 import { SetURLSearchParams } from "react-router"
+import { MelistStyles } from "../../common/types"
 
 function Edit() {
-    const [page, setPage] = useState("menu")
-    const [selectedProductId, setSelectedProductId] = useState(0)
     const [urlParams, setUrlParams] = useSearchParams()
+    const [styles, setStyles] = useState<MelistStyles>({bgColor: "gray-100"})
 
     return (
         <div className="mx-auto max-w-5xl p-4">
@@ -18,9 +18,9 @@ function Edit() {
                 <div className="flex flex-col">
                     <div className="font-extrabold text-3xl mt-16 justify-self-start">Edit</div>
                     <div className="mt-4 flex gap-8">
-                        <Melist displayMode="edit" />
+                        <Melist displayMode="edit" styles={styles} />
                         <div className={`bg-gray-100 h-fit p-8 rounded-md items-center w-xl text-lg transition-[width] duration-100`}>
-                            {urlParams.get("view") == undefined && (
+                            {(urlParams.get("view") == undefined || urlParams.get("view") == "") && (
                                 <>
                                     <div className="font-medium text-sm">What would you like to do?</div>
                                     <div className="flex flex-col gap-2 mt-6">
@@ -34,7 +34,13 @@ function Edit() {
                                             <div>Add a product</div>
                                             <ArrowRightIcon className="size-5" />
                                         </div>
-                                        <div className="p-6 bg-gray-200 font-semibold text-sm flex justify-between hover:bg-gray-300">
+                                        <div 
+                                            className="p-6 bg-gray-200 font-semibold text-sm flex justify-between hover:bg-gray-300"
+                                            onClick={() => setUrlParams(prev => {
+                                                prev.set("view", "customize")
+                                                return prev
+                                            })}
+                                        >
                                             Customize colors / background
                                             <ArrowRightIcon className="size-5" />
                                         </div>
@@ -68,6 +74,18 @@ function Edit() {
                                         exit={{ x: -10 }}
                                     >
                                         <AddProductView setUrlParams={setUrlParams} />
+                                    </motion.div>
+                                </AnimatePresence>
+                            )}
+                            {urlParams.get("view") == "customize" && (
+                                <AnimatePresence>
+                                    <motion.div 
+                                        transition={{ type: "spring", duration: 0.1, bounce: 0 }}
+                                        initial={{ x: -10 }}
+                                        animate={{ x: 0 }}
+                                        exit={{ x: -10 }}
+                                    >
+                                        <CustomizeView setUrlParams={setUrlParams} setStyles={setStyles} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -155,6 +173,45 @@ function AddProductView({ setUrlParams } : AddProductViewProps) {
                     onClick={() => {}}
                 >
                     <ClockIcon className="size-5 stroke-2 mr-1" /> schedule
+                </div>
+            </div>
+        </div>
+    )
+}
+
+interface CustomizeViewProps {
+    setUrlParams: SetURLSearchParams;
+    setStyles: React.Dispatch<SetStateAction<MelistStyles>>;
+}
+function CustomizeView({ setUrlParams, setStyles } : CustomizeViewProps) {
+    const updateColor = (selectedColor : string) => {
+        console.log("updating color")
+        setStyles({bgColor: selectedColor})
+    }
+    return (
+        <div>
+            <div className="font-semibold">Choose background</div>
+            <div className="flex gap-2 mt-2">
+                <div className="size-10 rounded-full bg-blue-200 hover:bg-blue-300" onClick={() => updateColor("bg-sky-200")} />
+                <div className="size-10 rounded-full bg-yellow-200 hover:bg-yellow-300" onClick={() => updateColor("bg-yellow-200")} />
+                <div className="size-10 rounded-full bg-green-200 hover:bg-green-300" onClick={() => updateColor("bg-green-200")} />
+                <div className="size-10 rounded-full bg-purple-200 hover:bg-purple-300" onClick={() => updateColor("bg-purple-200")} />
+            </div>
+            <div className="flex gap-2">
+                <div 
+                    className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "")
+                        return prev
+                    })}
+                >
+                    <ArrowLeftIcon className="size-4 stroke-2 mr-1" /> back
+                </div>
+                <div 
+                    className="py-2 px-6 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => {}}
+                >
+                    save changes
                 </div>
             </div>
         </div>

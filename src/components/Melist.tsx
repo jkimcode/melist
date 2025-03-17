@@ -1,5 +1,5 @@
 import { ExclamationCircleIcon, HeartIcon, PlusCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { ProductDetails } from "../common/types";
+import { MelistStyles, ProductDetails } from "../common/types";
 import { SetStateAction } from "react";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router";
@@ -10,12 +10,13 @@ interface MelistProps {
     displayMode: string;
     setHoveredProduct?: hoveredProductSetter;
     setClickedProduct?: clickedProductSetter;
+    styles?: MelistStyles;
 }
-function Melist({ displayMode, setHoveredProduct, setClickedProduct } : MelistProps) {
+function Melist({ displayMode, setHoveredProduct, setClickedProduct, styles } : MelistProps) {
     if (displayMode == "condensed") return <MelistCondensedView />
     if (displayMode == "profile" && setHoveredProduct) return <MelistProfileView setHovered={setHoveredProduct} />
     if (displayMode == "my" && setClickedProduct) return <MelistMyView setClicked={setClickedProduct} />
-    if (displayMode == "edit") return <MelistEditView />
+    if (displayMode == "edit" && styles) return <MelistEditView styles={styles} />
 }
 
 function MelistCondensedView() {
@@ -176,9 +177,9 @@ function MelistMyView({ setClicked } : { setClicked: clickedProductSetter }) {
     )
 }
 
-function MelistEditView() {
+function MelistEditView({ styles } : { styles: MelistStyles}) {
     return (
-        <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-sm">
+        <div className={`bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-sm ${styles?.bgColor}`}>
             {/* header */}
             <div className="flex gap-4">
                 <div className="bg-white rounded-full size-12" />
