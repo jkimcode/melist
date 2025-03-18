@@ -1,4 +1,4 @@
-import { ArrowLeftIcon, ArrowRightIcon, ClockIcon } from "@heroicons/react/24/outline"
+import { ArrowLeftIcon, ArrowRightIcon, ClockIcon, PencilSquareIcon } from "@heroicons/react/24/outline"
 import Melist from "../../components/Melist"
 import { SetStateAction, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -98,6 +98,30 @@ function Edit() {
                                         exit={{ x: -10 }}
                                     >
                                         <CustomizeView setUrlParams={setUrlParams} setStyles={setStyles} />
+                                    </motion.div>
+                                </AnimatePresence>
+                            )}
+                            {urlParams.get("view") == "selected" && (
+                                <AnimatePresence>
+                                    <motion.div 
+                                        transition={{ type: "spring", duration: 0.1, bounce: 0 }}
+                                        initial={{ x: -10 }}
+                                        animate={{ x: 0 }}
+                                        exit={{ x: -10 }}
+                                    >
+                                        <SelectedView setUrlParams={setUrlParams} />
+                                    </motion.div>
+                                </AnimatePresence>
+                            )}
+                            {urlParams.get("view") == "editSelected" && (
+                                <AnimatePresence>
+                                    <motion.div 
+                                        transition={{ type: "spring", duration: 0.1, bounce: 0 }}
+                                        initial={{ x: -10 }}
+                                        animate={{ x: 0 }}
+                                        exit={{ x: -10 }}
+                                    >
+                                        <EditSelectedView setUrlParams={setUrlParams} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -255,6 +279,94 @@ function CustomizeView({ setUrlParams, setStyles } : CustomizeViewProps) {
                     onClick={() => {}}
                 >
                     save changes
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// opens when user clicks on product on list
+interface SelectedViewProps {
+    setUrlParams: SetURLSearchParams;
+}
+function SelectedView({ setUrlParams } : SelectedViewProps) {
+    return (
+        <div>
+            <div className="flex gap-2">
+                <div className="px-4 py-1 bg-white rounded-full text-sm">fave</div>
+            </div>
+            <div className="mt-4">
+                <div className="text-2xl font-bold">Neon Pajamas</div>
+                <div className="h-30 w-50 bg-white rounded-md mt-4"></div>
+                <div className="mt-4">omg these are so comfy</div>
+            </div>
+            <div className="flex gap-2 mt-12">
+                <div 
+                    className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "")
+                        return prev
+                    })}
+                >
+                    <ArrowLeftIcon className="size-4 stroke-2 mr-1" /> back
+                </div>
+                <div 
+                    className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "editSelected")
+                        return prev
+                    })}
+                >
+                    <PencilSquareIcon className="size-5 stroke-2 mr-1" /> edit
+                </div>
+            </div>
+        </div>
+    )
+}
+
+interface EditSelectedViewProps {
+    setUrlParams: SetURLSearchParams;
+}
+function EditSelectedView({ setUrlParams } : EditSelectedViewProps) {
+    return (
+        <div>
+            <div className="font-semibold text-sm">make any edits here...</div>
+            <div className="mt-4">
+                <div className="font-semibold text-3xl">Neon Pajamas</div>
+                <div className="mt-8 flex flex-col gap-12">
+                    <div>
+                        <div>modifiers</div>
+                        <div className="flex gap-2 font-medium mt-2">
+                            <div className="px-4 py-1 bg-white rounded-full text-sm flex items-center justify-center">fave</div>
+                            <div className="px-4 py-1 bg-white rounded-full text-sm">seasonal</div>
+                            <div className="px-4 py-1 bg-white rounded-full text-sm">endorsement</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div>your reaction</div>
+                        <textarea className="bg-white p-2 text-sm rounded-md w-4/5 mt-2" />
+                    </div>
+                    <div>
+                        <div className="mb-2">include product link?</div>
+                        <Toggle />
+                    </div>
+                </div>
+            </div>
+            <div className="flex gap-2">
+                <div 
+                    className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "selected")
+                        return prev
+                    })}
+                >
+                    <ArrowLeftIcon className="size-4 stroke-2 mr-1" /> back
+                </div>
+                <div 
+                    className="py-2 px-6 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => {}}
+                >
+                    save
                 </div>
             </div>
         </div>

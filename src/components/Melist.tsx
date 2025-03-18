@@ -1,9 +1,10 @@
 import { ExclamationCircleIcon, HeartIcon, PlusCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { MelistStyles, ProductDetails, SectionDetails } from "../common/types";
-import { SetStateAction } from "react";
+import { SetStateAction, useState } from "react";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { Link, useSearchParams } from "react-router";
 import Product from "./Product";
+import { Reorder } from "framer-motion";
 
 type hoveredProductSetter = React.Dispatch<SetStateAction<ProductDetails | null>>
 type clickedProductSetter = React.Dispatch<SetStateAction<ProductDetails | null>>;
@@ -181,7 +182,7 @@ function MelistMyView({ setClicked } : { setClicked: clickedProductSetter }) {
 
 function MelistEditView({ styles } : { styles: MelistStyles}) {
     const [urlParams, setUrlParams] = useSearchParams()
-    const mockData : SectionDetails[] = [
+    const sections :SectionDetails[] = [
         {
             title: "",
             displayTitle: false,
@@ -209,7 +210,7 @@ function MelistEditView({ styles } : { styles: MelistStyles}) {
 
             {/* products */}
             <div>
-                {mockData.map(section => (
+                {sections.map(section => (
                     <Section key={section.title} section={section} />
                 ))}
                 
@@ -245,14 +246,20 @@ function MelistEditView({ styles } : { styles: MelistStyles}) {
 }
 
 function Section({section} : {section: SectionDetails}) {
+    const [products, setProducts] = useState<ProductDetails[]>(section.products)
     return (
         <div key={section.title} className="mt-6 first:mt-0">
             {section.type != "featured" && <div className="font-semibold mb-2">{section.title}</div>}
             
-            <div className="flex flex-col gap-2">
-                {section.products.map(productItem => 
-                    <Product key={productItem.productTitle} productTitle={productItem.productTitle} />
-                )}
+            <div className="flex flex-col">
+                {/* todo: switch over to dnd-kit for drag between sections */}
+                <Reorder.Group axis="y" values={products} onReorder={setProducts}>
+                    {products.map(productItem => 
+                        <Reorder.Item key={productItem.productTitle} value={productItem}>
+                            <Product productTitle={productItem.productTitle} />
+                        </Reorder.Item>
+                    )}
+                </Reorder.Group>
             </div>
             {section.type == "featured" && (
                 <div className="outline-dotted py-1 px-2 text-xs mt-2 flex items-center">
