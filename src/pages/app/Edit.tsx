@@ -77,6 +77,18 @@ function Edit() {
                                     </motion.div>
                                 </AnimatePresence>
                             )}
+                            {urlParams.get("view") == "addSection" && (
+                                <AnimatePresence>
+                                    <motion.div 
+                                        transition={{ type: "spring", duration: 0.1, bounce: 0 }}
+                                        initial={{ x: -10 }}
+                                        animate={{ x: 0 }}
+                                        exit={{ x: -10 }}
+                                    >
+                                        <AddSectionView setUrlParams={setUrlParams} />
+                                    </motion.div>
+                                </AnimatePresence>
+                            )}
                             {urlParams.get("view") == "customize" && (
                                 <AnimatePresence>
                                     <motion.div 
@@ -173,6 +185,37 @@ function AddProductView({ setUrlParams } : AddProductViewProps) {
                     onClick={() => {}}
                 >
                     <ClockIcon className="size-5 stroke-2 mr-1" /> schedule
+                </div>
+            </div>
+        </div>
+    )
+}
+
+interface AddSectionViewProps {
+    setUrlParams: SetURLSearchParams;
+}
+function AddSectionView({ setUrlParams } : AddSectionViewProps) {
+    return (
+        <div>
+            <div className="font-semibold">Add a new section</div>
+            <div className="mt-2">
+                <input className="py-3 px-4 rounded-md w-72 bg-gray-200 text-sm" placeholder="e.g. summer, holidays, bags" />
+            </div>
+            <div className="flex gap-2">
+                <div 
+                    className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "")
+                        return prev
+                    })}
+                >
+                    <ArrowLeftIcon className="size-4 stroke-3 mr-1" /> quit
+                </div>
+                <div 
+                    className="py-2 px-8 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => {}}
+                >
+                    add
                 </div>
             </div>
         </div>

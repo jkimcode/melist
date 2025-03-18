@@ -1,8 +1,9 @@
 import { ExclamationCircleIcon, HeartIcon, PlusCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { MelistStyles, ProductDetails } from "../common/types";
+import { MelistStyles, ProductDetails, SectionDetails } from "../common/types";
 import { SetStateAction } from "react";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
+import Product from "./Product";
 
 type hoveredProductSetter = React.Dispatch<SetStateAction<ProductDetails | null>>
 type clickedProductSetter = React.Dispatch<SetStateAction<ProductDetails | null>>;
@@ -177,7 +178,24 @@ function MelistMyView({ setClicked } : { setClicked: clickedProductSetter }) {
     )
 }
 
+
 function MelistEditView({ styles } : { styles: MelistStyles}) {
+    const [urlParams, setUrlParams] = useSearchParams()
+    const mockData : SectionDetails[] = [
+        {
+            title: "",
+            displayTitle: false,
+            type: "featured",
+            products: [{productTitle: "a"},{productTitle: "b"},{productTitle: "c"}]
+        },
+        {
+            title: "winter faves",
+            displayTitle: true,
+            type: "normal",
+            products: [{productTitle: "d"},{productTitle: "e"},{productTitle: "f"}]
+        }
+    ]
+  
     return (
         <div className={`bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-sm ${styles?.bgColor}`}>
             {/* header */}
@@ -191,50 +209,28 @@ function MelistEditView({ styles } : { styles: MelistStyles}) {
 
             {/* products */}
             <div>
-                {/* featured */}
-                <div className="flex flex-col gap-2">
-                    <div className="flex">
-                        <div className="bg-white size-14 rounded-l-md"></div>
-                        <div className="bg-gray-200 w-full rounded-r-md"></div>
-                    </div>
-                    <div className="flex">
-                        <div className="bg-white size-14 rounded-l-md"></div>
-                        <div className="bg-gray-200 w-full rounded-r-md"></div>
-                    </div>
-                    <div className="flex">
-                        <div className="bg-white size-14 rounded-l-md"></div>
-                        <div className="bg-gray-200 w-full rounded-r-md"></div>
-                    </div>
-                </div>
-                <div className="outline-dotted py-1 px-2 text-xs mt-2 flex items-center">
-                    <ExclamationCircleIcon className="size-4 mr-1" />
-                    featured section can have max. of 3 products
-                </div>
-
-                {/* more products */}
-                <div className="mt-6">
-                    <div className="font-semibold">winter faves</div>
-                    <div className="flex flex-col gap-2 mt-2">
-                        <div className="flex">
-                            <div className="bg-white size-14 rounded-l-md"></div>
-                            <div className="bg-gray-200 w-full rounded-r-md"></div>
-                        </div>
-                        <div className="flex">
-                            <div className="bg-white size-14 rounded-l-md"></div>
-                            <div className="bg-gray-200 w-full rounded-r-md"></div>
-                        </div>
-                        <div className="flex">
-                            <div className="bg-white size-14 rounded-l-md"></div>
-                            <div className="bg-gray-200 w-full rounded-r-md"></div>
-                        </div>
-                    </div>
-                </div>
-                <div className="outline-dotted py-1 px-2 text-xs mt-2 flex items-center hover:bg-gray-200">
+                {mockData.map(section => (
+                    <Section key={section.title} section={section} />
+                ))}
+                
+                <div 
+                    className="outline-dotted py-1 px-2 text-xs mt-2 flex items-center hover:bg-gray-200"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "product")
+                        return prev
+                    })}
+                >
                     <PlusCircleIcon className="size-4 mr-1" />
                     add new
                 </div>
 
-                <div className="outline-dotted py-2 px-2 text-xs mt-6 flex items-center hover:bg-gray-200">
+                <div 
+                    className="outline-dotted py-2 px-2 text-xs mt-6 flex items-center hover:bg-gray-200"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "addSection")
+                        return prev
+                    })}
+                >
                     <PlusIcon className="size-4 mr-1" />
                     add section
                 </div>
@@ -246,6 +242,26 @@ function MelistEditView({ styles } : { styles: MelistStyles}) {
             </div>
         </div>
     )   
+}
+
+function Section({section} : {section: SectionDetails}) {
+    return (
+        <div key={section.title} className="mt-6 first:mt-0">
+            {section.type != "featured" && <div className="font-semibold mb-2">{section.title}</div>}
+            
+            <div className="flex flex-col gap-2">
+                {section.products.map(productItem => 
+                    <Product key={productItem.productTitle} productTitle={productItem.productTitle} />
+                )}
+            </div>
+            {section.type == "featured" && (
+                <div className="outline-dotted py-1 px-2 text-xs mt-2 flex items-center">
+                    <ExclamationCircleIcon className="size-4 mr-1" />
+                    featured section can have max. of 3 products
+                </div>
+            )}
+        </div>
+    )
 }
 
 export default Melist
