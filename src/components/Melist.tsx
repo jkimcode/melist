@@ -256,7 +256,7 @@ function Section({section} : {section: SectionDetails}) {
                 <Reorder.Group axis="y" values={products} onReorder={setProducts}>
                     {products.map(productItem => 
                         <Reorder.Item key={productItem.productTitle} value={productItem}>
-                            <Product productTitle={productItem.productTitle} />
+                            <Product productTitle={productItem.productTitle} mode="edit" />
                         </Reorder.Item>
                     )}
                 </Reorder.Group>
