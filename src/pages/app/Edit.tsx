@@ -2,7 +2,7 @@ import { ArrowLeftIcon, ArrowRightIcon, ClockIcon, PencilSquareIcon } from "@her
 import Melist from "../../components/Melist"
 import { SetStateAction, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { PlusCircleIcon } from "@heroicons/react/16/solid"
+import { PlusCircleIcon, TrashIcon } from "@heroicons/react/16/solid"
 import Toggle from "../../components/Toggle"
 import { useSearchParams } from "react-router"
 import { SetURLSearchParams } from "react-router"
@@ -44,7 +44,14 @@ function Edit() {
                                             Customize colors / background
                                             <ArrowRightIcon className="size-5" />
                                         </div>
-                                        <div className="p-6 bg-gray-200 font-semibold text-sm flex justify-between hover:bg-gray-300">
+                                        <div 
+                                            className="p-6 bg-gray-200 font-semibold text-sm flex justify-between hover:bg-gray-300"
+                                            onClick={() => {
+                                                const params = new URLSearchParams()
+                                                params.set("view", "help")
+                                                setUrlParams(params)
+                                            }}
+                                        >
                                             Edit / remove a product
                                             <ArrowRightIcon className="size-5" />
                                         </div>
@@ -122,6 +129,18 @@ function Edit() {
                                         exit={{ x: -10 }}
                                     >
                                         <EditSelectedView setUrlParams={setUrlParams} />
+                                    </motion.div>
+                                </AnimatePresence>
+                            )}
+                            {urlParams.get("view") == "help" && (
+                                <AnimatePresence>
+                                    <motion.div 
+                                        transition={{ type: "spring", duration: 0.1, bounce: 0 }}
+                                        initial={{ x: -10 }}
+                                        animate={{ x: 0 }}
+                                        exit={{ x: -10 }}
+                                    >
+                                        <HelpView setUrlParams={setUrlParams} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -352,21 +371,51 @@ function EditSelectedView({ setUrlParams } : EditSelectedViewProps) {
                     </div>
                 </div>
             </div>
-            <div className="flex gap-2">
-                <div 
-                    className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
-                    onClick={() => setUrlParams(prev => {
-                        prev.set("view", "selected")
-                        return prev
-                    })}
-                >
-                    <ArrowLeftIcon className="size-4 stroke-2 mr-1" /> back
+            <div className="flex justify-between">
+                <div className="flex gap-2">
+                    <div 
+                        className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                        onClick={() => setUrlParams(prev => {
+                            prev.set("view", "selected")
+                            return prev
+                        })}
+                    >
+                        <ArrowLeftIcon className="size-4 stroke-2 mr-1" /> back
+                    </div>
+                    <div 
+                        className="py-2 px-6 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                        onClick={() => {}}
+                    >
+                        save
+                    </div>
                 </div>
                 <div 
                     className="py-2 px-6 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
                     onClick={() => {}}
                 >
-                    save
+                    delete
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function HelpView({ setUrlParams } : { setUrlParams: SetURLSearchParams }) {
+    return (
+        <div>
+            <div className="font-semibold">Editing / removing a product</div>
+            <div className="mt-2 text-sm">
+                <div>To edit or remove a product, simply click on it from the list on the left.</div>
+            </div>
+            <div className="flex gap-2 mt-16">
+                <div 
+                    className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "")
+                        return prev
+                    })}
+                >
+                    <ArrowLeftIcon className="size-4 stroke-3 mr-1" /> back
                 </div>
             </div>
         </div>
