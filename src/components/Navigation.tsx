@@ -28,7 +28,7 @@ function Navigation() {
                     </div>
                     <div className="flex items-center gap-4">
                         <Link to="saved">saved</Link>
-                        <div>following</div>
+                        <Link to="following">following</Link>
                         <div className="bg-gray-200 rounded-full size-12"></div>
                     </div>
                 </div>

@@ -19,9 +19,11 @@ function Melist({ displayMode, setHoveredProduct, setClickedProduct, styles } : 
     if (displayMode == "profile" && setHoveredProduct) return <MelistProfileView setHovered={setHoveredProduct} />
     if (displayMode == "my" && setClickedProduct) return <MelistMyView setClicked={setClickedProduct} />
     if (displayMode == "edit" && styles) return <MelistEditView styles={styles} />
+    if (displayMode == "minimized") return <MelistMinimizedView />
 }
 
 function MelistCondensedView() {
+    // show 3 products
     return (
         <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-md">
             {/* header */}
@@ -61,7 +63,67 @@ function MelistCondensedView() {
     )   
 }
 
+function MelistMinimizedView() {
+    const [collapsed, setCollapsed] = useState(true)
+
+    // collapsible 
+    return (
+        <div 
+            className={`bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-md hover:cursor-pointer transition-[height] ${collapsed ? "h-24" : "h-100"} duration-50`}
+            onClick={() => setCollapsed(!collapsed)}
+        >
+            {collapsed && (
+                <div className="flex gap-4">
+                    <div className="bg-white rounded-full size-12" />
+                    <div>
+                        <div className="font-bold text-xl">Kylie Jenner</div>
+                        <div className="text-xs">24 products</div>
+                    </div>
+                </div>
+            )}
+            {!collapsed && (
+                <>
+                    {/* equivalent to MelistCondensedView */}
+                    <div className="flex gap-4">
+                        <div className="bg-white rounded-full size-12" />
+                        <div>
+                            <div className="font-bold text-xl">Kylie Jenner</div>
+                            <div className="text-xs">24 products</div>
+                        </div>
+                    </div>
+
+                    {/* products */}
+                    <div>
+                        {/* featured */}
+                        <div className="flex flex-col gap-2">
+                            <div className="flex">
+                                <div className="bg-white size-14 rounded-l-md"></div>
+                                <div className="bg-gray-200 w-full rounded-r-md"></div>
+                            </div>
+                            <div className="flex">
+                                <div className="bg-white size-14 rounded-l-md"></div>
+                                <div className="bg-gray-200 w-full rounded-r-md"></div>
+                            </div>
+                            <div className="flex">
+                                <div className="bg-white size-14 rounded-l-md"></div>
+                                <div className="bg-gray-200 w-full rounded-r-md"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* buttons */}
+                    <div className="flex gap-4">
+                        <Link to="/12" className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">view all</Link>
+                        <div className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold"><HeartIcon className="size-5 stroke-2" /></div>
+                    </div>
+                </>
+            )}
+        </div>
+    )   
+}
+
 function MelistProfileView({ setHovered } : { setHovered: hoveredProductSetter }) {
+    // show all products
     return (
         <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-sm">
             {/* header */}
@@ -120,6 +182,7 @@ function MelistProfileView({ setHovered } : { setHovered: hoveredProductSetter }
 }
 
 function MelistMyView({ setClicked } : { setClicked: clickedProductSetter }) {
+    // all products with edit button
     return (
         <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-sm">
             {/* header */}
