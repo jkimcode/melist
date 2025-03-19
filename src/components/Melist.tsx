@@ -56,7 +56,7 @@ function MelistCondensedView() {
 
             {/* buttons */}
             <div className="flex gap-4">
-                <div className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">view all</div>
+                <Link to="/12" className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">view all</Link>
                 <div className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold"><HeartIcon className="size-5 stroke-2" /></div>
             </div>
         </div>
