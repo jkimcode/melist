@@ -13,6 +13,10 @@ import Edit from './pages/app/Edit.tsx'
 import Saved from './pages/app/Saved.tsx'
 import Following from './pages/app/Following.tsx'
 import AppLayout from './layouts/AppLayout.tsx'
+import BusinessLayout from './layouts/BusinessLayout.tsx'
+import Addproduct from './pages/business/AddProduct.tsx'
+import AllProducts from './pages/business/AllProducts.tsx'
+import AddProduct from './pages/business/AddProduct.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -27,6 +31,10 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/saved" element={<Saved />} />
           <Route path="/test" element={<App />} />
           <Route path="/edit" element={<Edit />} />
+        </Route>
+        <Route path="/business" element={<BusinessLayout />}>
+          <Route path="products" element={<AllProducts />} />
+          <Route path="add" element={<AddProduct />} />
         </Route>
       </Routes>
     </BrowserRouter>
