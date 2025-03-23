@@ -280,7 +280,7 @@ function MelistEditView({ styles } : { styles: MelistStyles}) {
                 <div 
                     className="outline-dotted py-1 px-2 text-xs mt-2 flex items-center hover:bg-gray-200"
                     onClick={() => setUrlParams(prev => {
-                        prev.set("view", "product")
+                        prev.set("view", "step1")
                         return prev
                     })}
                 >

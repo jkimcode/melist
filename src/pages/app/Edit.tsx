@@ -27,7 +27,7 @@ function Edit() {
                                         <div 
                                             className="p-6 bg-gray-200 font-semibold text-sm flex justify-between hover:bg-gray-300"
                                             onClick={() => {setUrlParams((prev) => { 
-                                                prev.set("view", "product") 
+                                                prev.set("view", "step1") 
                                                 return prev
                                             } )}}
                                         >
@@ -60,6 +60,66 @@ function Edit() {
                             )}
 
                             {/* need separate AnimationPresence for each view */}
+                            {urlParams.get("view") == "step1" && (
+                                <AnimatePresence>
+                                    <motion.div 
+                                        transition={{ type: "spring", duration: 0.1, bounce: 0 }}
+                                        initial={{ x: -10 }}
+                                        animate={{ x: 0 }}
+                                        exit={{ x: -10 }}
+                                    >
+                                        <Step1View setUrlParams={setUrlParams} />
+                                    </motion.div>
+                                </AnimatePresence>
+                            )}
+                            {urlParams.get("view") == "step2" && (
+                                <AnimatePresence>
+                                    <motion.div 
+                                        transition={{ type: "spring", duration: 0.1, bounce: 0 }}
+                                        initial={{ x: -10 }}
+                                        animate={{ x: 0 }}
+                                        exit={{ x: -10 }}
+                                    >
+                                        <Step2View setUrlParams={setUrlParams} />
+                                    </motion.div>
+                                </AnimatePresence>
+                            )}
+                            {urlParams.get("view") == "step3" && (
+                                <AnimatePresence>
+                                    <motion.div 
+                                        transition={{ type: "spring", duration: 0.1, bounce: 0 }}
+                                        initial={{ x: -10 }}
+                                        animate={{ x: 0 }}
+                                        exit={{ x: -10 }}
+                                    >
+                                        <Step3View setUrlParams={setUrlParams} />
+                                    </motion.div>
+                                </AnimatePresence>
+                            )}
+                            {urlParams.get("view") == "step4" && (
+                                <AnimatePresence>
+                                    <motion.div 
+                                        transition={{ type: "spring", duration: 0.1, bounce: 0 }}
+                                        initial={{ x: -10 }}
+                                        animate={{ x: 0 }}
+                                        exit={{ x: -10 }}
+                                    >
+                                        <Step4View setUrlParams={setUrlParams} />
+                                    </motion.div>
+                                </AnimatePresence>
+                            )}
+                            {urlParams.get("view") == "step5" && (
+                                <AnimatePresence>
+                                    <motion.div 
+                                        transition={{ type: "spring", duration: 0.1, bounce: 0 }}
+                                        initial={{ x: -10 }}
+                                        animate={{ x: 0 }}
+                                        exit={{ x: -10 }}
+                                    >
+                                        <Step5View setUrlParams={setUrlParams} />
+                                    </motion.div>
+                                </AnimatePresence>
+                            )}
                             {urlParams.get("view") == "product" && (
                                 <AnimatePresence>
                                     <motion.div 
@@ -146,6 +206,202 @@ function Edit() {
                             )}
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+interface Step1ViewProps {
+    setUrlParams: SetURLSearchParams;
+}
+function Step1View({ setUrlParams } : Step1ViewProps ) {
+    return (
+        <div>
+            <div className="font-semibold text-sm">great! first let's gather some info...</div>
+            <div className="mt-8">
+                <div className="font-semibold text-2xl">What is your product called?</div>
+                <input className="p-4 mt-4 bg-white w-full rounded-md" placeholder="type here..." />
+            </div>
+            <div className="flex gap-2">
+                <div 
+                    className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "")
+                        return prev
+                    })}
+                >
+                    <ArrowLeftIcon className="size-4 stroke-3 mr-1" /> back
+                </div>
+                <div 
+                    className="py-2 w-28 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "step2")
+                        return prev
+                    })}
+                >
+                    next
+                </div>
+            </div>
+        </div>
+    )
+}
+
+interface Step2ViewProps {
+    setUrlParams: SetURLSearchParams;
+}
+function Step2View({ setUrlParams } : Step2ViewProps ) {
+    return (
+        <div>
+            <div className="">
+                <div className="font-semibold text-2xl">What tags should we include?</div>
+                <div className="mt-8">
+                    <div className="text-sm font-semibold">choose tags</div>
+                    <div className="flex gap-2 font-medium mt-2">
+                        <div className="px-4 py-1 bg-white rounded-full text-sm flex items-center justify-center">fave</div>
+                        <div className="px-4 py-1 bg-white rounded-full text-sm">seasonal</div>
+                        <div className="px-4 py-1 bg-white rounded-full text-sm">endorsement</div>
+                    </div>
+                    <div className="mt-10">
+                        <div className="text-sm font-semibold">create new tag</div>
+                        <div className="rounded-full bg-white flex w-48 mt-2">
+                            <input className="w-32 py-2 px-4 text-sm flex-3 rounded-l-full" placeholder="type here..." />
+                            <button className="bg-gray-200 flex-1 rounded-r-full text-sm px-2 py-1">add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="mt-16 flex gap-2">
+                <div 
+                    className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "step1")
+                        return prev
+                    })}
+                >
+                    <ArrowLeftIcon className="size-4 stroke-3 mr-1" /> back
+                </div>
+                <div 
+                    className="py-2 w-28 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "step3")
+                        return prev
+                    })}
+                >
+                    next
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+interface Step3ViewProps {
+    setUrlParams: SetURLSearchParams;
+}
+function Step3View({ setUrlParams } : Step3ViewProps ) {
+    return (
+        <div>
+            <div className="">
+                <div className="font-semibold text-sm">getting there...</div>
+                <div className="mt-8">
+                    <div className="font-semibold text-2xl">Share your reaction to the product (this is optional)</div>
+                    <textarea className="p-4 mt-4 bg-white w-full rounded-md text-sm min-h-24" placeholder="type here..." />
+                </div>
+            </div>
+            <div className="mt-16 flex gap-2">
+                <div 
+                    className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "step2")
+                        return prev
+                    })}
+                >
+                    <ArrowLeftIcon className="size-4 stroke-3 mr-1" /> back
+                </div>
+                <div 
+                    className="py-2 w-28 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "step4")
+                        return prev
+                    })}
+                >
+                    next
+                </div>
+            </div>
+        </div>
+    )
+}
+
+interface Step4ViewProps {
+    setUrlParams: SetURLSearchParams;
+}
+function Step4View({ setUrlParams } : Step4ViewProps ) {
+    return (
+        <div>
+            <div className="">
+                <div className="">
+                    <div className="font-semibold text-2xl">Upload your own photo of the product</div>
+                    <div className="mt-4 text-sm">this helps us make your list beautiful</div>
+                    <input className="mt-4" type="file" />
+                </div>
+            </div>
+            <div className="mt-16 flex gap-2">
+                <div 
+                    className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "step3")
+                        return prev
+                    })}
+                >
+                    <ArrowLeftIcon className="size-4 stroke-3 mr-1" /> back
+                </div>
+                <div 
+                    className="py-2 w-54 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "step5")
+                        return prev
+                    })}
+                >
+                    I don't have a photo
+                </div>
+            </div>
+        </div>
+    )
+}
+
+interface Step5ViewProps {
+    setUrlParams: SetURLSearchParams;
+}
+function Step5View({ setUrlParams } : Step5ViewProps ) {
+    return (
+        <div>
+            <div className="">
+                <div className="font-semibold text-sm">final step!</div>
+                <div className="mt-8">
+                    <div className="font-semibold text-xl">Add a link for others to view this product</div>
+                    <input className="py-2 px-4 mt-4 bg-white w-full rounded-md text-sm" placeholder="type here..." />
+                </div>
+            </div>
+            <div className="mt-16 flex gap-2">
+                <div 
+                    className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "step4")
+                        return prev
+                    })}
+                >
+                    <ArrowLeftIcon className="size-4 stroke-3 mr-1" /> back
+                </div>
+                <div 
+                    className="py-2 w-24 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "selected")
+                        prev.set("context", "created")
+                        return prev
+                    })}
+                >
+                    skip
                 </div>
             </div>
         </div>
@@ -311,6 +567,7 @@ interface SelectedViewProps {
 function SelectedView({ setUrlParams } : SelectedViewProps) {
     return (
         <div>
+            <div className="font-semibold text-sm mb-8">added to your list!</div>
             <div className="flex gap-2">
                 <div className="px-4 py-1 bg-white rounded-full text-sm">fave</div>
             </div>

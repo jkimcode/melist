@@ -7,6 +7,7 @@ function Navigation() {
     const location = useLocation();
     const [expandSearchbar, setExpandSearchbar] = useState(false)
     const {ref, isActive, setIsActive} = useOutsideClick(true)
+    const user = null
 
     useEffect(() => {
         if (!location.pathname.includes('search')) {
@@ -29,11 +30,20 @@ function Navigation() {
                             }}
                         />
                     </div>
-                    <div className="flex items-center gap-4">
-                        <Link to="saved">saved</Link>
-                        <Link to="following">following</Link>
-                        <Link to="my" className="bg-gray-200 rounded-full size-12" />
-                    </div>
+                    {user && (
+                        <div className="flex items-center gap-4">
+                            <Link to="following">following</Link>
+                            <Link to="saved">saved</Link>
+                            <Link to="my" className="bg-gray-200 rounded-full size-12" />
+                        </div>
+                    )}
+                    {!user && (
+                        <div className="flex items-center gap-8">
+                            <Link to="auth/login">login</Link>
+                            <Link className="w-16" to="auth/signup">sign up</Link>
+                        </div>
+                    )}
+                    
                 </div>
             </div>
         </nav>

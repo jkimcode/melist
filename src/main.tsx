@@ -17,6 +17,8 @@ import BusinessLayout from './layouts/BusinessLayout.tsx'
 import Addproduct from './pages/business/AddProduct.tsx'
 import AllProducts from './pages/business/AllProducts.tsx'
 import AddProduct from './pages/business/AddProduct.tsx'
+import Login from './pages/app/auth/Login.tsx'
+import SignUp from './pages/app/auth/SignUp.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -26,11 +28,15 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/:userId" element={<Profile />} />
           <Route path="/search" element={<Search />} />
           <Route path="/my" element={<MyProfile />} />
-          <Route path="/home" element={<Home />} />
+          <Route path="/" element={<Home />} />
           <Route path="/following" element={<Following />} />
           <Route path="/saved" element={<Saved />} />
           <Route path="/test" element={<App />} />
           <Route path="/edit" element={<Edit />} />
+        </Route>
+        <Route path="/auth">
+          <Route path="login" element={<Login />} />
+          <Route path="signup" element={<SignUp />} />
         </Route>
         <Route path="/business" element={<BusinessLayout />}>
           <Route path="products" element={<AllProducts />} />
