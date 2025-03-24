@@ -6,19 +6,36 @@ import { PlusCircleIcon, TrashIcon } from "@heroicons/react/16/solid"
 import Toggle from "../../components/Toggle"
 import { useSearchParams } from "react-router"
 import { SetURLSearchParams } from "react-router"
-import { MelistStyles } from "../../common/types"
+import { MelistStyles, ProductData } from "../../common/types"
+import useFetchMelist from "../../hooks/useFetchMelist"
 
 function Edit() {
     const [urlParams, setUrlParams] = useSearchParams()
     const [styles, setStyles] = useState<MelistStyles>({bgColor: "gray-100"})
+    const { listData } = useFetchMelist()
+    const findProduct = (productId: string | null) => {
+        if (!productId) return null 
+        if (!listData) return null
 
+        // need to search through all sections
+        let res : ProductData | null = null
+        listData.forEach(section => {
+            section.products.forEach(product => {
+                if (product.id == productId) {
+                    res = product
+                    return 
+                }
+            })
+        })
+        return res
+    }
     return (
         <div className="mx-auto max-w-5xl p-4">
             <div className="flex justify-center">
                 <div className="flex flex-col">
                     <div className="font-extrabold text-3xl mt-16 justify-self-start">Edit</div>
                     <div className="mt-4 flex gap-8">
-                        <Melist displayMode="edit" styles={styles} />
+                        <Melist melistData={listData ? listData : undefined} displayMode="edit" styles={styles} />
                         <div className={`bg-gray-100 h-fit p-8 rounded-md items-center w-xl text-lg transition-[width] duration-100`}>
                             {(urlParams.get("view") == undefined || urlParams.get("view") == "") && (
                                 <>
@@ -176,7 +193,7 @@ function Edit() {
                                         animate={{ x: 0 }}
                                         exit={{ x: -10 }}
                                     >
-                                        <SelectedView setUrlParams={setUrlParams} />
+                                        <SelectedView setUrlParams={setUrlParams} isNew={urlParams.get("context") == "created"} product={findProduct(urlParams.get("productId"))} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -562,19 +579,21 @@ function CustomizeView({ setUrlParams, setStyles } : CustomizeViewProps) {
 
 // opens when user clicks on product on list
 interface SelectedViewProps {
+    isNew: boolean;
     setUrlParams: SetURLSearchParams;
+    product: ProductData | null;
 }
-function SelectedView({ setUrlParams } : SelectedViewProps) {
+function SelectedView({ setUrlParams, product, isNew } : SelectedViewProps) {
     return (
         <div>
-            <div className="font-semibold text-sm mb-8">added to your list!</div>
+            {isNew && <div className="font-semibold text-sm mb-8">added to your list!</div>}
             <div className="flex gap-2">
                 <div className="px-4 py-1 bg-white rounded-full text-sm">fave</div>
             </div>
             <div className="mt-4">
-                <div className="text-2xl font-bold">Neon Pajamas</div>
+                <div className="text-2xl font-bold">{product?.product_name}</div>
                 <div className="h-30 w-50 bg-white rounded-md mt-4"></div>
-                <div className="mt-4">omg these are so comfy</div>
+                <div className="mt-4">{product?.reaction}</div>
             </div>
             <div className="flex gap-2 mt-12">
                 <div 

@@ -1,5 +1,5 @@
 import { ExclamationCircleIcon, HeartIcon, PlusCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { MelistStyles, ProductDetails, SectionDetails } from "../common/types";
+import { MelistData, MelistStyles, ProductDetails, SectionData, SectionDetails } from "../common/types";
 import { SetStateAction, useState } from "react";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { Link, useSearchParams } from "react-router";
@@ -9,16 +9,17 @@ import { Reorder } from "framer-motion";
 type hoveredProductSetter = React.Dispatch<SetStateAction<ProductDetails | null>>
 type clickedProductSetter = React.Dispatch<SetStateAction<ProductDetails | null>>;
 interface MelistProps {
+    melistData?: MelistData; // todo: require this
     displayMode: string;
     setHoveredProduct?: hoveredProductSetter;
     setClickedProduct?: clickedProductSetter;
     styles?: MelistStyles;
 }
-function Melist({ displayMode, setHoveredProduct, setClickedProduct, styles } : MelistProps) {
+function Melist({ melistData, displayMode, setHoveredProduct, setClickedProduct, styles } : MelistProps) {
     if (displayMode == "condensed") return <MelistCondensedView />
-    if (displayMode == "profile" && setHoveredProduct) return <MelistProfileView setHovered={setHoveredProduct} />
-    if (displayMode == "my" && setClickedProduct) return <MelistMyView setClicked={setClickedProduct} />
-    if (displayMode == "edit" && styles) return <MelistEditView styles={styles} />
+    if (displayMode == "profile" && setHoveredProduct && melistData) return <MelistProfileView data={melistData} setHovered={setHoveredProduct} />
+    if (displayMode == "my" && setClickedProduct && melistData) return <MelistMyView data={melistData} setClicked={setClickedProduct} />
+    if (displayMode == "edit" && styles && melistData) return <MelistEditView data={melistData} styles={styles} />
     if (displayMode == "minimized") return <MelistMinimizedView />
 }
 
@@ -122,7 +123,7 @@ function MelistMinimizedView() {
     )   
 }
 
-function MelistProfileView({ setHovered } : { setHovered: hoveredProductSetter }) {
+function MelistProfileView({ data, setHovered } : { data: MelistData, setHovered: hoveredProductSetter }) {
     // show all products
     return (
         <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-sm">
@@ -154,23 +155,19 @@ function MelistProfileView({ setHovered } : { setHovered: hoveredProductSetter }
                 </div>
 
                 {/* more products */}
-                <div className="mt-6">
-                    <div className="font-semibold">winter faves</div>
-                    <div className="flex flex-col gap-2 mt-2">
-                        <div className="flex">
-                            <div className="bg-white size-14 rounded-l-md"></div>
-                            <div className="bg-gray-200 w-full rounded-r-md"></div>
-                        </div>
-                        <div className="flex">
-                            <div className="bg-white size-14 rounded-l-md"></div>
-                            <div className="bg-gray-200 w-full rounded-r-md"></div>
-                        </div>
-                        <div className="flex">
-                            <div className="bg-white size-14 rounded-l-md"></div>
-                            <div className="bg-gray-200 w-full rounded-r-md"></div>
+                {data.map(section => (
+                     <div className="mt-6">
+                        <div className="font-semibold">{section.section_name}</div>
+                        <div className="flex flex-col gap-2 mt-2">
+                            {section.products.map(product => (
+                                <div className="flex" key={product.id}>
+                                    <div className="bg-white size-14 rounded-l-md"></div>
+                                    <div className="bg-gray-200 w-full rounded-r-md">{product.reaction} hi</div>
+                                </div>
+                            ))}
                         </div>
                     </div>
-                </div>
+                ))}
             </div>
 
             {/* buttons */}
@@ -181,7 +178,7 @@ function MelistProfileView({ setHovered } : { setHovered: hoveredProductSetter }
     )   
 }
 
-function MelistMyView({ setClicked } : { setClicked: clickedProductSetter }) {
+function MelistMyView({ data, setClicked } : { data: MelistData, setClicked: clickedProductSetter }) {
     // all products with edit button
     return (
         <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-sm">
@@ -197,7 +194,7 @@ function MelistMyView({ setClicked } : { setClicked: clickedProductSetter }) {
             {/* products */}
             <div>
                 {/* featured */}
-                <div className="flex flex-col gap-2">
+                {/* <div className="flex flex-col gap-2">
                     <div className="flex" onClick={() => setClicked({ productTitle: "product A" })}>
                         <div className="bg-white size-14 rounded-l-md"></div>
                         <div className="bg-gray-200 w-full rounded-r-md"></div>
@@ -210,26 +207,22 @@ function MelistMyView({ setClicked } : { setClicked: clickedProductSetter }) {
                         <div className="bg-white size-14 rounded-l-md"></div>
                         <div className="bg-gray-200 w-full rounded-r-md"></div>
                     </div>
-                </div>
+                </div> */}
 
                 {/* more products */}
-                <div className="mt-6">
-                    <div className="font-semibold">winter faves</div>
-                    <div className="flex flex-col gap-2 mt-2">
-                        <div className="flex">
-                            <div className="bg-white size-14 rounded-l-md"></div>
-                            <div className="bg-gray-200 w-full rounded-r-md"></div>
-                        </div>
-                        <div className="flex">
-                            <div className="bg-white size-14 rounded-l-md"></div>
-                            <div className="bg-gray-200 w-full rounded-r-md"></div>
-                        </div>
-                        <div className="flex">
-                            <div className="bg-white size-14 rounded-l-md"></div>
-                            <div className="bg-gray-200 w-full rounded-r-md"></div>
+                {data.map(section => (
+                     <div className="mt-6 first:mt-0">
+                        <div className="font-semibold">{section.section_name}</div>
+                        <div className="flex flex-col gap-2 mt-2">
+                            {section.products.map(product => (
+                                <div className="flex">
+                                    <div className="bg-white size-14 rounded-l-md"></div>
+                                    <div className="bg-gray-200 w-full rounded-r-md">{product.reaction} hi</div>
+                                </div>
+                            ))}
                         </div>
                     </div>
-                </div>
+                ))}
             </div>
 
             {/* buttons */}
@@ -243,7 +236,7 @@ function MelistMyView({ setClicked } : { setClicked: clickedProductSetter }) {
 }
 
 
-function MelistEditView({ styles } : { styles: MelistStyles}) {
+function MelistEditView({ data, styles } : { data: MelistData, styles: MelistStyles}) {
     const [urlParams, setUrlParams] = useSearchParams()
     const sections :SectionDetails[] = [
         {
@@ -273,9 +266,12 @@ function MelistEditView({ styles } : { styles: MelistStyles}) {
 
             {/* products */}
             <div>
-                {sections.map(section => (
-                    <Section key={section.title} section={section} />
+                {data.map(section => (
+                    <Section key={section.section_name} section={section} />
                 ))}
+                {/* {sections.map(section => (
+                    <Section key={section.title} section={section} />
+                ))} */}
                 
                 <div 
                     className="outline-dotted py-1 px-2 text-xs mt-2 flex items-center hover:bg-gray-200"
@@ -308,23 +304,25 @@ function MelistEditView({ styles } : { styles: MelistStyles}) {
     )   
 }
 
-function Section({section} : {section: SectionDetails}) {
-    const [products, setProducts] = useState<ProductDetails[]>(section.products)
+function Section({section} : {section: SectionData}) {
     return (
-        <div key={section.title} className="mt-6 first:mt-0">
-            {section.type != "featured" && <div className="font-semibold mb-2">{section.title}</div>}
+        <div className="mt-6 first:mt-0">
+            <div className="font-semibold mb-2">{section.section_name}</div>
             
             <div className="flex flex-col">
                 {/* todo: switch over to dnd-kit for drag between sections */}
-                <Reorder.Group axis="y" values={products} onReorder={setProducts}>
+                {/* <Reorder.Group axis="y" values={products} onReorder={setProducts}>
                     {products.map(productItem => 
                         <Reorder.Item key={productItem.productTitle} value={productItem}>
                             <Product productTitle={productItem.productTitle} mode="edit" />
                         </Reorder.Item>
                     )}
-                </Reorder.Group>
+                </Reorder.Group> */}
+                {section.products.map(productItem => (
+                    <Product key={productItem.id} product={productItem} mode="edit" />
+                ))}
             </div>
-            {section.type == "featured" && (
+            {section.section_name == "" && (
                 <div className="outline-dotted py-1 px-2 text-xs mt-2 flex items-center">
                     <ExclamationCircleIcon className="size-4 mr-1" />
                     featured section can have max. of 3 products

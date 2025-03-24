@@ -11,3 +11,18 @@ export interface ProductDetails {
 export interface MelistStyles {
     bgColor: string;
 }
+
+export type ProductData = {
+    id: string, 
+    include_link_if_present: boolean, 
+    rank_within_section: string, 
+    reaction: string, 
+    section_id: string, 
+    user_id: string,
+    product_name: string
+}
+export type SectionData = {
+    section_name: string, 
+    products: ProductData[]
+}
+export type MelistData = SectionData[]

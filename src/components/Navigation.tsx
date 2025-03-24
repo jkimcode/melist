@@ -1,19 +1,33 @@
 import { Link, useLocation, useNavigate } from "react-router"
 import { useEffect, useState } from "react"
 import useOutsideClick from "../hooks/useOutsideClick";
+import { supabase } from "../supabase/client";
 
 function Navigation() {
     const navigate = useNavigate();
     const location = useLocation();
     const [expandSearchbar, setExpandSearchbar] = useState(false)
     const {ref, isActive, setIsActive} = useOutsideClick(true)
-    const user = null
+    const [user, setUser] = useState<{email: string} | null>(null)
 
     useEffect(() => {
         if (!location.pathname.includes('search')) {
             setIsActive(false)
         }
+        const checkUser = async () => {
+            const { data, error } = await supabase.auth.getUser()
+            if (error) {
+                console.log('error', error)
+                setUser(null)
+            } else {
+                console.log(data)
+                setUser({email: data.user.email || ""})
+            }
+            
+        }
+        checkUser()
     },[location])
+
     return (
         <nav>
             <div className="mx-auto max-w-5xl p-4">
@@ -31,7 +45,7 @@ function Navigation() {
                         />
                     </div>
                     {user && (
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-6">
                             <Link to="following">following</Link>
                             <Link to="saved">saved</Link>
                             <Link to="my" className="bg-gray-200 rounded-full size-12" />

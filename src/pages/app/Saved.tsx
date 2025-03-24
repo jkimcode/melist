@@ -1,12 +1,14 @@
 import { Link } from "react-router"
 import Product from "../../components/Product"
 import { useState } from "react"
-import { ProductDetails } from "../../common/types"
+import { ProductData, ProductDetails } from "../../common/types"
 import { motion } from "framer-motion"
+import useFetchMelist from "../../hooks/useFetchMelist"
 
 function Saved() {
-    const [hoveredProduct, setHoveredProduct] = useState<ProductDetails | null>(null)
+    const [hoveredProduct, setHoveredProduct] = useState<ProductData | null>(null)
     const products : ProductDetails[] = [{productTitle: "a"},{productTitle: "b"},{productTitle: "c"}]
+    const { listData } = useFetchMelist()
     return (
         <div className="mx-auto max-w-5xl p-4" onMouseLeave={() => setHoveredProduct(null)}>
             <div className="flex justify-center">
@@ -14,23 +16,23 @@ function Saved() {
                     <div className="font-medium text-3xl mt-16 justify-self-start">Saved Products</div>
                     <div className="mt-4 flex gap-8">
                         <div className="flex flex-col w-sm p-6 bg-gray-100 rounded-lg h-fit">
-                            {products.map(item => 
+                            {/* {products.map(item => 
                                 <Product 
                                     key={item.productTitle} 
                                     productTitle={item.productTitle} 
                                     mode="standalone"
                                     onHover={setHoveredProduct}
                                 />
-                            )}
+                            )} */}
                         </div>
-                        {!hoveredProduct && (
+                        {/* {!hoveredProduct && (
                             <div className={`bg-gray-100 p-8 rounded-md items-center w-xl text-lg h-fit`}>
                                 <div className="pb-8">
                                     <div>Hover over a prodcut to see details...</div>
                                 </div>
                             </div>
-                        )}
-                        {hoveredProduct && (
+                        )} */}
+                        {/* {hoveredProduct && (
                             <motion.div 
                                 transition={{ type: "spring", bounce: 0, duration: 0.1 }}
                                 initial={{ scale: 0.95 }}
@@ -57,7 +59,7 @@ function Saved() {
                                     </div>
                                 </div>
                             </motion.div>
-                        )}
+                        )} */}
                     </div>
                 </div>
             </div>       
