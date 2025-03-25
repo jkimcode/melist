@@ -15,7 +15,6 @@ function Edit() {
     const [styles, setStyles] = useState<MelistStyles>({bgColor: "gray-100"})
     const { listData } = useFetchMelist()
 
-    // on: adding these refs to elements
     const productNameRef = useRef<HTMLInputElement>(null)
     const [tags, setTags] = useState<TagData[]>([])
     const reactionRef = useRef<HTMLTextAreaElement>(null)
@@ -278,6 +277,23 @@ interface Step2ViewProps {
 }
 function Step2View({ setTags, setUrlParams } : Step2ViewProps ) {
     const [tagOptions, setTagOptions] = useState<TagData[]>([])
+    const newTagRef = useRef<HTMLInputElement>(null)
+    const addNewTag = async (tagName : string) => {
+        const { data: { user } } = await supabase.auth.getUser()
+
+        if (!user) return
+
+        const { data, error } = await supabase.from('tags').insert([{ tag_name: tagName , user_id: user.id }]).select()
+
+        if (error) {
+            console.log('error uploading new tag', error)
+            return 
+        }
+
+        setTagOptions(prev => ([...prev, {...data[0]}]))
+
+        newTagRef.current!.value = ""
+    }
     useEffect(() => {
         const fetchTags = async () => {
             const { data: { user } } = await supabase.auth.getUser()
@@ -323,7 +339,6 @@ function Step2View({ setTags, setUrlParams } : Step2ViewProps ) {
                                     setTagOptions(prev => {
                                         const updated = [...prev]
                                         updated[i].selected = !isSelected
-                                        console.log(updated[i])
                                         return updated
                                     })}}
                             >
@@ -334,8 +349,13 @@ function Step2View({ setTags, setUrlParams } : Step2ViewProps ) {
                     <div className="mt-10">
                         <div className="text-sm font-semibold">create new tag</div>
                         <div className="rounded-full bg-white flex w-48 mt-2">
-                            <input className="w-32 py-2 px-4 text-sm flex-3 rounded-l-full" placeholder="type here..." />
-                            <button className="bg-gray-200 flex-1 rounded-r-full text-sm px-2 py-1">add</button>
+                            <input ref={newTagRef} className="w-32 py-2 px-4 text-sm flex-3 rounded-l-full" placeholder="type here..." />
+                            <button 
+                                className="bg-gray-200 flex-1 rounded-r-full text-sm px-2 py-1"
+                                onClick={() => addNewTag(newTagRef.current!.value)}
+                            >
+                                add
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -353,6 +373,7 @@ function Step2View({ setTags, setUrlParams } : Step2ViewProps ) {
                 <div 
                     className="py-2 w-28 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
                     onClick={() => setUrlParams(prev => {
+                        setTags(tagOptions)
                         prev.set("view", "step3")
                         return prev
                     })}
