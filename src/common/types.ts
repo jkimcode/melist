@@ -12,6 +12,11 @@ export interface MelistStyles {
     bgColor: string;
 }
 
+export type TagData = {
+    id: string,
+    tag_name: string,
+    selected: boolean
+}
 export type ProductData = {
     id: string, 
     include_link_if_present: boolean, 

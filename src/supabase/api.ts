@@ -1,7 +1,7 @@
 import { supabase } from "./client";
 
 export async function fetchMelistData(userId: string) {
-    
+
     let { data: sections , error: e1 } = await supabase
         .from('m_section')
         .select("id,section_name,user_id")
@@ -26,6 +26,6 @@ export async function fetchMelistData(userId: string) {
         section_name: s.section_name,
         products: products!.filter(p => p.section_id == s.id)
     }))
-    console.log(res)
+    
     return res
 }

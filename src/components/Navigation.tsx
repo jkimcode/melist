@@ -6,7 +6,6 @@ import { supabase } from "../supabase/client";
 function Navigation() {
     const navigate = useNavigate();
     const location = useLocation();
-    const [expandSearchbar, setExpandSearchbar] = useState(false)
     const {ref, isActive, setIsActive} = useOutsideClick(true)
     const [user, setUser] = useState<{email: string} | null>(null)
 
@@ -17,10 +16,8 @@ function Navigation() {
         const checkUser = async () => {
             const { data, error } = await supabase.auth.getUser()
             if (error) {
-                console.log('error', error)
                 setUser(null)
             } else {
-                console.log(data)
                 setUser({email: data.user.email || ""})
             }
             

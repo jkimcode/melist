@@ -1,18 +1,25 @@
 import { ArrowLeftIcon, ArrowRightIcon, ClockIcon, PencilSquareIcon } from "@heroicons/react/24/outline"
 import Melist from "../../components/Melist"
-import { SetStateAction, useState } from "react"
+import { Dispatch, RefObject, SetStateAction, useEffect, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { PlusCircleIcon, TrashIcon } from "@heroicons/react/16/solid"
+import { PlusCircleIcon } from "@heroicons/react/16/solid"
 import Toggle from "../../components/Toggle"
 import { useSearchParams } from "react-router"
 import { SetURLSearchParams } from "react-router"
-import { MelistStyles, ProductData } from "../../common/types"
+import { MelistStyles, ProductData, TagData } from "../../common/types"
 import useFetchMelist from "../../hooks/useFetchMelist"
+import { supabase } from "../../supabase/client"
 
 function Edit() {
     const [urlParams, setUrlParams] = useSearchParams()
     const [styles, setStyles] = useState<MelistStyles>({bgColor: "gray-100"})
     const { listData } = useFetchMelist()
+
+    // on: adding these refs to elements
+    const productNameRef = useRef<HTMLInputElement>(null)
+    const [tags, setTags] = useState<TagData[]>([])
+    const reactionRef = useRef<HTMLTextAreaElement>(null)
+    const productLinkRef = useRef<HTMLInputElement>(null)
     const findProduct = (productId: string | null) => {
         if (!productId) return null 
         if (!listData) return null
@@ -85,7 +92,7 @@ function Edit() {
                                         animate={{ x: 0 }}
                                         exit={{ x: -10 }}
                                     >
-                                        <Step1View setUrlParams={setUrlParams} />
+                                        <Step1View productName={productNameRef} setUrlParams={setUrlParams} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -97,7 +104,7 @@ function Edit() {
                                         animate={{ x: 0 }}
                                         exit={{ x: -10 }}
                                     >
-                                        <Step2View setUrlParams={setUrlParams} />
+                                        <Step2View setTags={setTags} setUrlParams={setUrlParams} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -109,7 +116,7 @@ function Edit() {
                                         animate={{ x: 0 }}
                                         exit={{ x: -10 }}
                                     >
-                                        <Step3View setUrlParams={setUrlParams} />
+                                        <Step3View reaction={reactionRef} setUrlParams={setUrlParams} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -133,7 +140,7 @@ function Edit() {
                                         animate={{ x: 0 }}
                                         exit={{ x: -10 }}
                                     >
-                                        <Step5View setUrlParams={setUrlParams} />
+                                        <Step5View productLink={productLinkRef} setUrlParams={setUrlParams} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -230,15 +237,16 @@ function Edit() {
 }
 
 interface Step1ViewProps {
+    productName: RefObject<HTMLInputElement | null>
     setUrlParams: SetURLSearchParams;
 }
-function Step1View({ setUrlParams } : Step1ViewProps ) {
+function Step1View({ productName, setUrlParams } : Step1ViewProps ) {
     return (
         <div>
             <div className="font-semibold text-sm">great! first let's gather some info...</div>
             <div className="mt-8">
                 <div className="font-semibold text-2xl">What is your product called?</div>
-                <input className="p-4 mt-4 bg-white w-full rounded-md" placeholder="type here..." />
+                <input ref={productName} className="p-4 mt-4 bg-white w-full rounded-md" placeholder="type here..." />
             </div>
             <div className="flex gap-2">
                 <div 
@@ -265,9 +273,41 @@ function Step1View({ setUrlParams } : Step1ViewProps ) {
 }
 
 interface Step2ViewProps {
+    setTags: Dispatch<SetStateAction<TagData[]>>;
     setUrlParams: SetURLSearchParams;
 }
-function Step2View({ setUrlParams } : Step2ViewProps ) {
+function Step2View({ setTags, setUrlParams } : Step2ViewProps ) {
+    const [tagOptions, setTagOptions] = useState<TagData[]>([])
+    useEffect(() => {
+        const fetchTags = async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+
+            if (!user) {
+                console.log('no user')
+                return
+            } 
+
+            // user's tags
+            let { data: tags, error } = await supabase
+                .from('tags').select('*').eq('user_id', user.id)
+
+            if (error) {
+                console.log('error fetching tags', error)
+                return
+            } 
+
+            if (!tags) {
+                console.log('no tags')
+                return
+            }
+
+            console.log(tags)
+            const reformatted : TagData[] = tags.map(item => ({ id: item.id, tag_name: item.tag_name, selected: false }))
+            setTagOptions(reformatted)
+        }
+        fetchTags()
+    },[])
+
     return (
         <div>
             <div className="">
@@ -275,9 +315,21 @@ function Step2View({ setUrlParams } : Step2ViewProps ) {
                 <div className="mt-8">
                     <div className="text-sm font-semibold">choose tags</div>
                     <div className="flex gap-2 font-medium mt-2">
-                        <div className="px-4 py-1 bg-white rounded-full text-sm flex items-center justify-center">fave</div>
-                        <div className="px-4 py-1 bg-white rounded-full text-sm">seasonal</div>
-                        <div className="px-4 py-1 bg-white rounded-full text-sm">endorsement</div>
+                        {tagOptions?.map((item,i) => (
+                            <button 
+                                className={`px-4 py-1 bg-white rounded-full text-sm hover:cursor-pointer ${item.selected && "bg-yellow-100"}`}
+                                onClick={() => {
+                                    const isSelected = item.selected
+                                    setTagOptions(prev => {
+                                        const updated = [...prev]
+                                        updated[i].selected = !isSelected
+                                        console.log(updated[i])
+                                        return updated
+                                    })}}
+                            >
+                                {item.tag_name}
+                            </button>
+                        ))}
                     </div>
                     <div className="mt-10">
                         <div className="text-sm font-semibold">create new tag</div>
@@ -314,16 +366,17 @@ function Step2View({ setUrlParams } : Step2ViewProps ) {
 
 
 interface Step3ViewProps {
+    reaction: RefObject<HTMLTextAreaElement | null>;
     setUrlParams: SetURLSearchParams;
 }
-function Step3View({ setUrlParams } : Step3ViewProps ) {
+function Step3View({ reaction, setUrlParams } : Step3ViewProps ) {
     return (
         <div>
             <div className="">
                 <div className="font-semibold text-sm">getting there...</div>
                 <div className="mt-8">
                     <div className="font-semibold text-2xl">Share your reaction to the product (this is optional)</div>
-                    <textarea className="p-4 mt-4 bg-white w-full rounded-md text-sm min-h-24" placeholder="type here..." />
+                    <textarea ref={reaction} className="p-4 mt-4 bg-white w-full rounded-md text-sm min-h-24" placeholder="type here..." />
                 </div>
             </div>
             <div className="mt-16 flex gap-2">
@@ -388,16 +441,17 @@ function Step4View({ setUrlParams } : Step4ViewProps ) {
 }
 
 interface Step5ViewProps {
+    productLink: RefObject<HTMLInputElement | null>;
     setUrlParams: SetURLSearchParams;
 }
-function Step5View({ setUrlParams } : Step5ViewProps ) {
+function Step5View({ productLink, setUrlParams } : Step5ViewProps ) {
     return (
         <div>
             <div className="">
                 <div className="font-semibold text-sm">final step!</div>
                 <div className="mt-8">
                     <div className="font-semibold text-xl">Add a link for others to view this product</div>
-                    <input className="py-2 px-4 mt-4 bg-white w-full rounded-md text-sm" placeholder="type here..." />
+                    <input ref={productLink} className="py-2 px-4 mt-4 bg-white w-full rounded-md text-sm" placeholder="type here..." />
                 </div>
             </div>
             <div className="mt-16 flex gap-2">
