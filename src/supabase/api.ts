@@ -24,8 +24,9 @@ export async function fetchMelistData(userId: string) {
 
     const res = sections!.map(s => ({
         section_name: s.section_name,
+        section_id: s.id,
         products: products!.filter(p => p.section_id == s.id)
     }))
-    
+
     return res
 }

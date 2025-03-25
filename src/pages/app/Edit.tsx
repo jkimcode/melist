@@ -9,16 +9,20 @@ import { SetURLSearchParams } from "react-router"
 import { MelistStyles, ProductData, TagData } from "../../common/types"
 import useFetchMelist from "../../hooks/useFetchMelist"
 import { supabase } from "../../supabase/client"
+import Spinner from "../../components/icons/spinner"
 
 function Edit() {
     const [urlParams, setUrlParams] = useSearchParams()
     const [styles, setStyles] = useState<MelistStyles>({bgColor: "gray-100"})
     const { listData } = useFetchMelist()
 
-    const productNameRef = useRef<HTMLInputElement>(null)
+    // add product flow
+    const [productName, setProductName] = useState<string>("")
     const [tags, setTags] = useState<TagData[]>([])
-    const reactionRef = useRef<HTMLTextAreaElement>(null)
-    const productLinkRef = useRef<HTMLInputElement>(null)
+    const [reaction, setReaction] = useState<string>("")
+    const [productLink, setProductLink] = useState<string>("")
+    const [sectionId, setSectionId] = useState<string>("")
+
     const findProduct = (productId: string | null) => {
         if (!productId) return null 
         if (!listData) return null
@@ -34,6 +38,27 @@ function Edit() {
             })
         })
         return res
+    }
+    const uploadProduct = async () => {
+        const { data: { user } } = await supabase.auth.getUser()
+
+        if (!user) return
+
+        const { data, error } = await supabase.from('m_product').insert([{ 
+            user_id: user.id, 
+            reaction, 
+            include_link_if_present: true, 
+            product_name: productName, 
+            section_id: listData![0].section_id,
+            rank_within_section: "a"
+        }]).select()
+
+        if (error) {
+            console.log('error insert product', error)
+            return 
+        }
+
+        console.log(data)
     }
     return (
         <div className="mx-auto max-w-5xl p-4">
@@ -91,7 +116,7 @@ function Edit() {
                                         animate={{ x: 0 }}
                                         exit={{ x: -10 }}
                                     >
-                                        <Step1View productName={productNameRef} setUrlParams={setUrlParams} />
+                                        <Step1View setProductName={setProductName} setUrlParams={setUrlParams} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -115,7 +140,7 @@ function Edit() {
                                         animate={{ x: 0 }}
                                         exit={{ x: -10 }}
                                     >
-                                        <Step3View reaction={reactionRef} setUrlParams={setUrlParams} />
+                                        <Step3View setReaction={setReaction} setUrlParams={setUrlParams} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -139,7 +164,7 @@ function Edit() {
                                         animate={{ x: 0 }}
                                         exit={{ x: -10 }}
                                     >
-                                        <Step5View productLink={productLinkRef} setUrlParams={setUrlParams} />
+                                        <Step5View uploadProduct={uploadProduct} setProductLink={setProductLink} setUrlParams={setUrlParams} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -236,16 +261,16 @@ function Edit() {
 }
 
 interface Step1ViewProps {
-    productName: RefObject<HTMLInputElement | null>
+    setProductName: Dispatch<SetStateAction<string>>
     setUrlParams: SetURLSearchParams;
 }
-function Step1View({ productName, setUrlParams } : Step1ViewProps ) {
+function Step1View({ setProductName, setUrlParams } : Step1ViewProps ) {
     return (
         <div>
             <div className="font-semibold text-sm">great! first let's gather some info...</div>
             <div className="mt-8">
                 <div className="font-semibold text-2xl">What is your product called?</div>
-                <input ref={productName} className="p-4 mt-4 bg-white w-full rounded-md" placeholder="type here..." />
+                <input onChange={(e) => setProductName(e.target.value)} className="p-4 mt-4 bg-white w-full rounded-md" placeholder="type here..." />
             </div>
             <div className="flex gap-2">
                 <div 
@@ -333,6 +358,7 @@ function Step2View({ setTags, setUrlParams } : Step2ViewProps ) {
                     <div className="flex gap-2 font-medium mt-2">
                         {tagOptions?.map((item,i) => (
                             <button 
+                                key={item.id}
                                 className={`px-4 py-1 bg-white rounded-full text-sm hover:cursor-pointer ${item.selected && "bg-yellow-100"}`}
                                 onClick={() => {
                                     const isSelected = item.selected
@@ -373,7 +399,7 @@ function Step2View({ setTags, setUrlParams } : Step2ViewProps ) {
                 <div 
                     className="py-2 w-28 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
                     onClick={() => setUrlParams(prev => {
-                        setTags(tagOptions)
+                        setTags(tagOptions.filter(item => item.selected))
                         prev.set("view", "step3")
                         return prev
                     })}
@@ -387,17 +413,17 @@ function Step2View({ setTags, setUrlParams } : Step2ViewProps ) {
 
 
 interface Step3ViewProps {
-    reaction: RefObject<HTMLTextAreaElement | null>;
+    setReaction: Dispatch<SetStateAction<string>>;
     setUrlParams: SetURLSearchParams;
 }
-function Step3View({ reaction, setUrlParams } : Step3ViewProps ) {
+function Step3View({ setReaction, setUrlParams } : Step3ViewProps ) {
     return (
         <div>
             <div className="">
                 <div className="font-semibold text-sm">getting there...</div>
                 <div className="mt-8">
                     <div className="font-semibold text-2xl">Share your reaction to the product (this is optional)</div>
-                    <textarea ref={reaction} className="p-4 mt-4 bg-white w-full rounded-md text-sm min-h-24" placeholder="type here..." />
+                    <textarea onChange={(e) => setReaction(e.target.value)} className="p-4 mt-4 bg-white w-full rounded-md text-sm min-h-24" placeholder="type here..." />
                 </div>
             </div>
             <div className="mt-16 flex gap-2">
@@ -462,17 +488,18 @@ function Step4View({ setUrlParams } : Step4ViewProps ) {
 }
 
 interface Step5ViewProps {
-    productLink: RefObject<HTMLInputElement | null>;
+    uploadProduct: () => void;
+    setProductLink: Dispatch<SetStateAction<string>>;
     setUrlParams: SetURLSearchParams;
 }
-function Step5View({ productLink, setUrlParams } : Step5ViewProps ) {
+function Step5View({ uploadProduct, setProductLink, setUrlParams } : Step5ViewProps ) {
     return (
         <div>
             <div className="">
                 <div className="font-semibold text-sm">final step!</div>
                 <div className="mt-8">
                     <div className="font-semibold text-xl">Add a link for others to view this product</div>
-                    <input ref={productLink} className="py-2 px-4 mt-4 bg-white w-full rounded-md text-sm" placeholder="type here..." />
+                    <input onChange={(e) => setProductLink(e.target.value)} className="py-2 px-4 mt-4 bg-white w-full rounded-md text-sm" placeholder="type here..." />
                 </div>
             </div>
             <div className="mt-16 flex gap-2">
@@ -488,6 +515,7 @@ function Step5View({ productLink, setUrlParams } : Step5ViewProps ) {
                 <div 
                     className="py-2 w-24 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
                     onClick={() => setUrlParams(prev => {
+                        uploadProduct()
                         prev.set("view", "selected")
                         prev.set("context", "created")
                         return prev
@@ -586,11 +614,45 @@ interface AddSectionViewProps {
     setUrlParams: SetURLSearchParams;
 }
 function AddSectionView({ setUrlParams } : AddSectionViewProps) {
+    const [newSectionName, setNewSectionName] = useState<string>("")
+    const sectionRef = useRef<HTMLInputElement>(null)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const addNewSection = async () => {
+        setIsLoading(true)
+
+        const { data: { user } } = await supabase.auth.getUser()
+
+        if (!user) {
+            setIsLoading(false)
+            return 
+        }
+
+        console.log("user", user)
+
+        const { data, error } = await supabase.from('m_section').insert([{
+            user_id: user.id,
+            section_name: newSectionName
+        }]).select()
+        
+
+        if (error) {
+            console.log('error insert section', error)
+            setIsLoading(false)
+            return 
+        }
+
+        console.log(data)
+        setIsLoading(false)
+        sectionRef.current!.value = ""
+    }
     return (
         <div>
             <div className="font-semibold">Add a new section</div>
             <div className="mt-2">
-                <input className="py-3 px-4 rounded-md w-72 bg-gray-200 text-sm" placeholder="e.g. summer, holidays, bags" />
+                <input 
+                    ref={sectionRef}
+                    onChange={(e) => setNewSectionName(e.target.value)} 
+                    className="py-3 px-4 rounded-md w-72 bg-gray-200 text-sm" placeholder="e.g. summer, holidays, bags" />
             </div>
             <div className="flex gap-2">
                 <div 
@@ -604,8 +666,9 @@ function AddSectionView({ setUrlParams } : AddSectionViewProps) {
                 </div>
                 <div 
                     className="py-2 px-8 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
-                    onClick={() => {}}
+                    onClick={() => addNewSection()}
                 >
+                    {isLoading && <Spinner />}
                     add
                 </div>
             </div>

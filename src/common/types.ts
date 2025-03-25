@@ -28,6 +28,7 @@ export type ProductData = {
 }
 export type SectionData = {
     section_name: string, 
+    section_id: string,
     products: ProductData[]
 }
 export type MelistData = SectionData[]

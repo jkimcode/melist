@@ -1,14 +1,20 @@
 import { useEffect, useState } from "react";
 import { MelistData } from "../common/types";
 import { fetchMelistData } from "../supabase/api";
+import { supabase } from "../supabase/client";
 
 export default function useFetchMelist() {
     const [listData, setListData] = useState<MelistData | null>(null)
 
     useEffect(() => {
         const populateList = async () => {
-            const data = await fetchMelistData("04eda49d-6cd3-49fc-8ea4-0a093f72b69c")
+            const { data: { user } } = await supabase.auth.getUser()
+
+            if (!user) return
+
+            const data = await fetchMelistData(user.id)
             if (data) {
+                console.log("melist", data)
                 setListData(data)
             }
         }
