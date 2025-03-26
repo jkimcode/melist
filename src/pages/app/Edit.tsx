@@ -6,7 +6,7 @@ import { PlusCircleIcon } from "@heroicons/react/16/solid"
 import Toggle from "../../components/Toggle"
 import { useSearchParams } from "react-router"
 import { SetURLSearchParams } from "react-router"
-import { MelistStyles, ProductData, TagData } from "../../common/types"
+import { MelistData, MelistStyles, ProductData, TagData } from "../../common/types"
 import useFetchMelist from "../../hooks/useFetchMelist"
 import { supabase } from "../../supabase/client"
 import Spinner from "../../components/icons/spinner"
@@ -14,7 +14,7 @@ import Spinner from "../../components/icons/spinner"
 function Edit() {
     const [urlParams, setUrlParams] = useSearchParams()
     const [styles, setStyles] = useState<MelistStyles>({bgColor: "gray-100"})
-    const { listData } = useFetchMelist()
+    const { listData, populateList } = useFetchMelist()
 
     // add product flow
     const [productName, setProductName] = useState<string>("")
@@ -49,7 +49,7 @@ function Edit() {
             reaction, 
             include_link_if_present: true, 
             product_name: productName, 
-            section_id: listData![0].section_id,
+            section_id: sectionId,
             rank_within_section: "a"
         }]).select()
 
@@ -58,7 +58,8 @@ function Edit() {
             return 
         }
 
-        console.log(data)
+        // fetch again to update melist display
+        populateList()
     }
     return (
         <div className="mx-auto max-w-5xl p-4">
@@ -75,7 +76,13 @@ function Edit() {
                                         <div 
                                             className="p-6 bg-gray-200 font-semibold text-sm flex justify-between hover:bg-gray-300"
                                             onClick={() => {setUrlParams((prev) => { 
-                                                prev.set("view", "step1") 
+                                                // if at least one user-created section, prompt for choice
+                                                console.log(listData)
+                                                if (listData?.length == 1 && listData[0].section_name == "featured") {
+                                                    prev.set("view", "step1") 
+                                                } else {
+                                                    prev.set("view", "step0") 
+                                                }
                                                 return prev
                                             } )}}
                                         >
@@ -108,6 +115,18 @@ function Edit() {
                             )}
 
                             {/* need separate AnimationPresence for each view */}
+                            {urlParams.get("view") == "step0" && (
+                                <AnimatePresence>
+                                    <motion.div 
+                                        transition={{ type: "spring", duration: 0.1, bounce: 0 }}
+                                        initial={{ x: -10 }}
+                                        animate={{ x: 0 }}
+                                        exit={{ x: -10 }}
+                                    >
+                                        <Step0View sectionId={sectionId} setSectionId={setSectionId} sections={listData!} setUrlParams={setUrlParams} />
+                                    </motion.div>
+                                </AnimatePresence>
+                            )}
                             {urlParams.get("view") == "step1" && (
                                 <AnimatePresence>
                                     <motion.div 
@@ -116,7 +135,7 @@ function Edit() {
                                         animate={{ x: 0 }}
                                         exit={{ x: -10 }}
                                     >
-                                        <Step1View setProductName={setProductName} setUrlParams={setUrlParams} />
+                                        <Step1View skipStepZero={listData?.length == 1 && listData[0].section_name == "featured"} setProductName={setProductName} setUrlParams={setUrlParams} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -260,11 +279,58 @@ function Edit() {
     )
 }
 
+interface Step0ViewProps {
+    setUrlParams: SetURLSearchParams;
+    sections: MelistData;
+    setSectionId: Dispatch<SetStateAction<string>>;
+    sectionId: string;
+}
+function Step0View({ setUrlParams, sections, setSectionId, sectionId } : Step0ViewProps ) {
+    return (
+        <div>
+            <div>
+                <div className="font-semibold text-2xl">Select a section for the product</div>
+                <div className="mt-8 flex gap-3">
+                    {sections.map(item => (
+                        <button 
+                            className={`p-6 w-fit rounded-sm bg-gray-200 font-semibold text-sm hover:cursor-pointer ${sectionId == item.section_id && "bg-yellow-100"}`}
+                            onClick={() => setSectionId(item.section_id)}
+                        >
+                            {item.section_name}
+                        </button>
+                    ))}
+                </div>
+            </div>
+            <div className="flex gap-2">
+                <div 
+                    className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "")
+                        return prev
+                    })}
+                >
+                    <ArrowLeftIcon className="size-4 stroke-3 mr-1" /> back
+                </div>
+                <div 
+                    className="py-2 w-28 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "step1")
+                        return prev
+                    })}
+                >
+                    confirm
+                </div>
+            </div>
+        </div>
+    )
+}
+
 interface Step1ViewProps {
     setProductName: Dispatch<SetStateAction<string>>
     setUrlParams: SetURLSearchParams;
+    skipStepZero: boolean;
 }
-function Step1View({ setProductName, setUrlParams } : Step1ViewProps ) {
+function Step1View({ setProductName, setUrlParams, skipStepZero } : Step1ViewProps ) {
     return (
         <div>
             <div className="font-semibold text-sm">great! first let's gather some info...</div>
@@ -276,7 +342,9 @@ function Step1View({ setProductName, setUrlParams } : Step1ViewProps ) {
                 <div 
                     className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
                     onClick={() => setUrlParams(prev => {
-                        prev.set("view", "")
+                        if (skipStepZero) prev.set("view", "")
+                        else prev.set("view", "step0")
+                        
                         return prev
                     })}
                 >
