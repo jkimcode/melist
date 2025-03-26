@@ -6,7 +6,7 @@ import { PlusCircleIcon } from "@heroicons/react/16/solid"
 import Toggle from "../../components/Toggle"
 import { useSearchParams } from "react-router"
 import { SetURLSearchParams } from "react-router"
-import { MelistData, MelistStyles, ProductData, TagData } from "../../common/types"
+import { MelistData, MelistStyles, ProductData, TagSelectable } from "../../common/types"
 import useFetchMelist from "../../hooks/useFetchMelist"
 import { supabase } from "../../supabase/client"
 import Spinner from "../../components/icons/spinner"
@@ -18,7 +18,7 @@ function Edit() {
 
     // add product flow
     const [productName, setProductName] = useState<string>("")
-    const [tags, setTags] = useState<TagData[]>([])
+    const [tags, setTags] = useState<TagSelectable[]>([])
     const [reaction, setReaction] = useState<string>("")
     const [productLink, setProductLink] = useState<string>("")
     const [sectionId, setSectionId] = useState<string>("")
@@ -55,6 +55,15 @@ function Edit() {
 
         if (error) {
             console.log('error insert product', error)
+            return 
+        }
+
+        console.log(data)
+        const productTags = tags.map(item => ({ tag_id: item.id, m_product_id: data[0].id, user_id: user.id }))
+        const { error: error2 } = await supabase.from('m_product_tag').insert(productTags)
+
+        if (error2) {
+            console.log('error inserting product tags', error2)
             return 
         }
 
@@ -365,11 +374,11 @@ function Step1View({ setProductName, setUrlParams, skipStepZero } : Step1ViewPro
 }
 
 interface Step2ViewProps {
-    setTags: Dispatch<SetStateAction<TagData[]>>;
+    setTags: Dispatch<SetStateAction<TagSelectable[]>>;
     setUrlParams: SetURLSearchParams;
 }
 function Step2View({ setTags, setUrlParams } : Step2ViewProps ) {
-    const [tagOptions, setTagOptions] = useState<TagData[]>([])
+    const [tagOptions, setTagOptions] = useState<TagSelectable[]>([])
     const newTagRef = useRef<HTMLInputElement>(null)
     const addNewTag = async (tagName : string) => {
         const { data: { user } } = await supabase.auth.getUser()
@@ -411,7 +420,7 @@ function Step2View({ setTags, setUrlParams } : Step2ViewProps ) {
             }
 
             console.log(tags)
-            const reformatted : TagData[] = tags.map(item => ({ id: item.id, tag_name: item.tag_name, selected: false }))
+            const reformatted : TagSelectable[] = tags.map(item => ({ id: item.id, tag_name: item.tag_name, selected: false }))
             setTagOptions(reformatted)
         }
         fetchTags()
@@ -794,7 +803,9 @@ function SelectedView({ setUrlParams, product, isNew } : SelectedViewProps) {
         <div>
             {isNew && <div className="font-semibold text-sm mb-8">added to your list!</div>}
             <div className="flex gap-2">
-                <div className="px-4 py-1 bg-white rounded-full text-sm">fave</div>
+                {product?.tags && product.tags.length > 0 && product.tags.map(item => (
+                    <div className="px-4 py-1 bg-white rounded-full text-sm">{item.tag_name}</div>
+                ))}
             </div>
             <div className="mt-4">
                 <div className="text-2xl font-bold">{product?.product_name}</div>

@@ -12,10 +12,16 @@ export interface MelistStyles {
     bgColor: string;
 }
 
-export type TagData = {
+export type TagSelectable = {
     id: string,
     tag_name: string,
     selected: boolean
+}
+
+export type TagData = {
+    tag_id: string,
+    tag_name: string,
+    product_id: string
 }
 export type ProductData = {
     id: string, 
@@ -24,7 +30,8 @@ export type ProductData = {
     reaction: string, 
     section_id: string, 
     user_id: string,
-    product_name: string
+    product_name: string,
+    tags?: TagData[]
 }
 export type SectionData = {
     section_name: string, 
