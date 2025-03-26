@@ -69,6 +69,8 @@ function Edit() {
 
         // fetch again to update melist display
         populateList()
+
+        return data[0].id
     }
     return (
         <div className="mx-auto max-w-5xl p-4">
@@ -565,11 +567,23 @@ function Step4View({ setUrlParams } : Step4ViewProps ) {
 }
 
 interface Step5ViewProps {
-    uploadProduct: () => void;
+    uploadProduct: () => Promise<string>;
     setProductLink: Dispatch<SetStateAction<string>>;
     setUrlParams: SetURLSearchParams;
 }
 function Step5View({ uploadProduct, setProductLink, setUrlParams } : Step5ViewProps ) {
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const clickHandler = async () => {
+        setIsLoading(true);
+        const uploadedProductId = await uploadProduct()
+        setIsLoading(false)
+        setUrlParams(prev => {
+            prev.set("view", "selected")
+            prev.set("productId", uploadedProductId)
+            prev.set("context", "created")
+            return prev
+        })
+    }
     return (
         <div>
             <div className="">
@@ -591,14 +605,9 @@ function Step5View({ uploadProduct, setProductLink, setUrlParams } : Step5ViewPr
                 </div>
                 <div 
                     className="py-2 w-24 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
-                    onClick={() => setUrlParams(prev => {
-                        uploadProduct()
-                        prev.set("view", "selected")
-                        prev.set("context", "created")
-                        return prev
-                    })}
+                    onClick={() => clickHandler()}
                 >
-                    skip
+                    {isLoading && <Spinner />} skip
                 </div>
             </div>
         </div>
