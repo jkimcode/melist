@@ -56,7 +56,7 @@ function Edit() {
             product_link: productLink
         }
         const postProductResp = await uploadProduct(postProduct)
-        if (!postProductResp) return 
+        if (!postProductResp) return null
 
         // post product tags using returned product's id
         const postProductTags: PostProductTag[] = tags.map(item => ({ 
@@ -65,10 +65,9 @@ function Edit() {
             user_id: userData.userId 
         }))
         const postProductTagsResp = await uploadProductTags(postProductTags)
-        if (!postProductTagsResp) return 
+        if (!postProductTagsResp) return null
 
-        // fetch again to update melist display
-        populateList()
+        return postProductResp.id
     }
     return (
         <div className="mx-auto max-w-5xl p-4">
@@ -187,7 +186,7 @@ function Edit() {
                                         animate={{ x: 0 }}
                                         exit={{ x: -10 }}
                                     >
-                                        <Step5View onClickUpload={onClickUpload} productLink={productLink} setProductLink={setProductLink} setUrlParams={setUrlParams} />
+                                        <Step5View populateList={populateList} onClickUpload={onClickUpload} productLink={productLink} setProductLink={setProductLink} setUrlParams={setUrlParams} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -223,7 +222,7 @@ function Edit() {
                                         animate={{ x: 0 }}
                                         exit={{ x: -10 }}
                                     >
-                                        <AddSectionView setUrlParams={setUrlParams} />
+                                        <AddSectionView populateList={populateList} setUrlParams={setUrlParams} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -303,6 +302,7 @@ function Step0View({ setUrlParams, sections, setSectionId, sectionId } : Step0Vi
                 <div className="mt-8 flex gap-3">
                     {sections?.map(item => (
                         <button 
+                            key={item.section_id}
                             className={`p-6 w-fit rounded-sm bg-gray-200 font-semibold text-sm hover:cursor-pointer ${sectionId == item.section_id && "bg-yellow-100"}`}
                             onClick={() => setSectionId(item.section_id)}
                         >
@@ -560,20 +560,27 @@ function Step4View({ setUrlParams } : Step4ViewProps ) {
 }
 
 interface Step5ViewProps {
-    onClickUpload: () => Promise<void>;
+    onClickUpload: () => Promise<string | null>;
     productLink: string;
+    populateList: () => Promise<void>;
     setProductLink: Dispatch<SetStateAction<string>>;
     setUrlParams: SetURLSearchParams;
 }
-function Step5View({ onClickUpload, productLink, setProductLink, setUrlParams } : Step5ViewProps ) {
+function Step5View({ onClickUpload, productLink, populateList, setProductLink, setUrlParams } : Step5ViewProps ) {
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const clickHandler = async () => {
         setIsLoading(true);
         const uploadedProductId = await onClickUpload()
+        if (!uploadedProductId) {
+            return 
+        }
+
+        await populateList()
         setIsLoading(false)
+        
         setUrlParams(prev => {
             prev.set("view", "selected")
-            prev.set("productId", "")
+            prev.set("productId", uploadedProductId)
             prev.set("context", "created")
             return prev
         })
@@ -699,25 +706,22 @@ function AddProductView({ setUrlParams } : AddProductViewProps) {
 
 interface AddSectionViewProps {
     setUrlParams: SetURLSearchParams;
+    populateList: () => Promise<void>;
 }
-function AddSectionView({ setUrlParams } : AddSectionViewProps) {
+function AddSectionView({ populateList, setUrlParams } : AddSectionViewProps) {
     const [newSectionName, setNewSectionName] = useState<string>("")
     const sectionRef = useRef<HTMLInputElement>(null)
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const addNewSection = async () => {
         setIsLoading(true)
 
-        const { data: { user } } = await supabase.auth.getUser()
-
-        if (!user) {
-            setIsLoading(false)
-            return 
-        }
+        const user = await fetchUser()
+        if (!user) return
 
         console.log("user", user)
 
         const { data, error } = await supabase.from('m_section').insert([{
-            user_id: user.id,
+            user_id: user.userId,
             section_name: newSectionName
         }]).select()
         
@@ -731,6 +735,13 @@ function AddSectionView({ setUrlParams } : AddSectionViewProps) {
         console.log(data)
         setIsLoading(false)
         sectionRef.current!.value = ""
+
+        await populateList()
+
+        setUrlParams(prev => {
+            prev.set("view", "")
+            return prev
+        })
     }
     return (
         <div>
@@ -826,20 +837,22 @@ function SelectedView({ setUrlParams, product, isNew } : SelectedViewProps) {
             <div className="flex gap-2 mt-12">
                 <div 
                     className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
-                    onClick={() => setUrlParams(prev => {
-                        prev.set("view", "")
-                        return prev
-                    })}
+                    onClick={() => {
+                        const params = new URLSearchParams()
+                        params.set("view", "")
+                        setUrlParams(params)
+                    }}
                 >
                     <ArrowLeftIcon className="size-4 stroke-2 mr-1" /> back
                 </div>
                 <div 
                     className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
-                    onClick={() => setUrlParams(prev => {
-                        prev.set("view", "editSelected")
-                        prev.set("productId", product ? product.id : "")
-                        return prev
-                    })}
+                    onClick={() => {
+                        const params = new URLSearchParams()
+                        params.set("view", "editSelected")
+                        params.set("productId", product ? product.id : "")
+                        setUrlParams(params)
+                    }}
                 >
                     <PencilSquareIcon className="size-5 stroke-2 mr-1" /> edit
                 </div>
@@ -921,11 +934,11 @@ function EditSelectedView({ setUrlParams, populateList, product } : EditSelected
             .select()
         if (error) console.log("error removing tags", error)
 
-        setIsLoading(false)
-
         // refetch list data
         await populateList()
-        
+
+        setIsLoading(false)
+
         setUrlParams(prev => {
             prev.set("view", "selected")
             return prev

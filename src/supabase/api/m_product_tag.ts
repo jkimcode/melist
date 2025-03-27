@@ -10,7 +10,9 @@ export async function uploadProductTags(postProductTags: PostProductTag[]) {
         return null
     }
 
-    return data
+    if (!data || data.length == 0) return
+
+    return data[0]
 }
 
 export async function fetchProductTags(productId: string) {
