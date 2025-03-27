@@ -1,5 +1,5 @@
 import { ExclamationCircleIcon, HeartIcon, PlusCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { MelistData, MelistStyles, ProductDetails, SectionData, SectionDetails } from "../common/types";
+import { MelistData, MelistStyles, ProductDetails, SectionData, SectionDetails, UserData } from "../common/types";
 import { SetStateAction, useState } from "react";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { Link, useSearchParams } from "react-router";
@@ -10,16 +10,17 @@ type hoveredProductSetter = React.Dispatch<SetStateAction<ProductDetails | null>
 type clickedProductSetter = React.Dispatch<SetStateAction<ProductDetails | null>>;
 interface MelistProps {
     melistData?: MelistData; // todo: require this
+    userData?: UserData;
     displayMode: string;
     setHoveredProduct?: hoveredProductSetter;
     setClickedProduct?: clickedProductSetter;
     styles?: MelistStyles;
 }
-function Melist({ melistData, displayMode, setHoveredProduct, setClickedProduct, styles } : MelistProps) {
+function Melist({ melistData, displayMode, setHoveredProduct, setClickedProduct, styles, userData } : MelistProps) {
     if (displayMode == "condensed") return <MelistCondensedView />
     if (displayMode == "profile" && setHoveredProduct && melistData) return <MelistProfileView data={melistData} setHovered={setHoveredProduct} />
     if (displayMode == "my" && setClickedProduct && melistData) return <MelistMyView data={melistData} setClicked={setClickedProduct} />
-    if (displayMode == "edit" && styles && melistData) return <MelistEditView data={melistData} styles={styles} />
+    if (displayMode == "edit" && styles && melistData && userData) return <MelistEditView user={userData} data={melistData} styles={styles} />
     if (displayMode == "minimized") return <MelistMinimizedView />
 }
 
@@ -193,29 +194,13 @@ function MelistMyView({ data, setClicked } : { data: MelistData, setClicked: cli
 
             {/* products */}
             <div>
-                {/* featured */}
-                {/* <div className="flex flex-col gap-2">
-                    <div className="flex" onClick={() => setClicked({ productTitle: "product A" })}>
-                        <div className="bg-white size-14 rounded-l-md"></div>
-                        <div className="bg-gray-200 w-full rounded-r-md"></div>
-                    </div>
-                    <div className="flex" onClick={() => setClicked({ productTitle: "product B" })}>
-                        <div className="bg-white size-14 rounded-l-md"></div>
-                        <div className="bg-gray-200 w-full rounded-r-md"></div>
-                    </div>
-                    <div className="flex" onClick={() => setClicked({ productTitle: "product C" })}>
-                        <div className="bg-white size-14 rounded-l-md"></div>
-                        <div className="bg-gray-200 w-full rounded-r-md"></div>
-                    </div>
-                </div> */}
-
                 {/* more products */}
                 {data.map(section => (
-                     <div className="mt-6 first:mt-0">
+                     <div key={section.section_id} className="mt-6 first:mt-0">
                         <div className="font-semibold">{section.section_name}</div>
                         <div className="flex flex-col gap-2 mt-2">
                             {section.products.map(product => (
-                                <div className="flex">
+                                <div key={product.id} className="flex">
                                     <div className="bg-white size-14 rounded-l-md"></div>
                                     <div className="bg-gray-200 w-full rounded-r-md">{product.reaction} hi</div>
                                 </div>
@@ -236,22 +221,8 @@ function MelistMyView({ data, setClicked } : { data: MelistData, setClicked: cli
 }
 
 
-function MelistEditView({ data, styles } : { data: MelistData, styles: MelistStyles}) {
+function MelistEditView({ user, data, styles } : { user: UserData, data: MelistData, styles: MelistStyles}) {
     const [urlParams, setUrlParams] = useSearchParams()
-    const sections :SectionDetails[] = [
-        {
-            title: "",
-            displayTitle: false,
-            type: "featured",
-            products: [{productTitle: "a"},{productTitle: "b"},{productTitle: "c"}]
-        },
-        {
-            title: "winter faves",
-            displayTitle: true,
-            type: "normal",
-            products: [{productTitle: "d"},{productTitle: "e"},{productTitle: "f"}]
-        }
-    ]
   
     return (
         <div className={`bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-sm ${styles?.bgColor}`}>
@@ -259,19 +230,14 @@ function MelistEditView({ data, styles } : { data: MelistData, styles: MelistSty
             <div className="flex gap-4">
                 <div className="bg-white rounded-full size-12" />
                 <div>
-                    <div className="font-bold text-xl">Kylie Jenner</div>
+                    <div className="font-bold text-xl">{user.displayName}</div>
                     <div className="text-xs">24 products</div>
                 </div>
             </div>
 
             {/* products */}
             <div>
-                {data.map(section => (
-                    <Section key={section.section_name} section={section} />
-                ))}
-                {/* {sections.map(section => (
-                    <Section key={section.title} section={section} />
-                ))} */}
+                {data.map(section => (<Section key={section.section_name} section={section} />))}
                 
                 <div 
                     className="outline-dotted py-1 px-2 text-xs mt-2 flex items-center hover:bg-gray-200"

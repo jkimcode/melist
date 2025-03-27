@@ -57,6 +57,7 @@ export type Database = {
           created_at: string
           id: string
           include_link_if_present: boolean
+          product_link: string | null
           product_name: string
           rank_within_section: string | null
           reaction: string | null
@@ -67,6 +68,7 @@ export type Database = {
           created_at?: string
           id?: string
           include_link_if_present: boolean
+          product_link?: string | null
           product_name?: string
           rank_within_section?: string | null
           reaction?: string | null
@@ -77,6 +79,7 @@ export type Database = {
           created_at?: string
           id?: string
           include_link_if_present?: boolean
+          product_link?: string | null
           product_name?: string
           rank_within_section?: string | null
           reaction?: string | null
@@ -98,18 +101,21 @@ export type Database = {
           created_at: string
           id: number
           m_product_id: string
+          tag_id: string
           user_id: string | null
         }
         Insert: {
           created_at?: string
           id?: number
           m_product_id: string
+          tag_id: string
           user_id?: string | null
         }
         Update: {
           created_at?: string
           id?: number
           m_product_id?: string
+          tag_id?: string
           user_id?: string | null
         }
         Relationships: [
@@ -118,6 +124,13 @@ export type Database = {
             columns: ["m_product_id"]
             isOneToOne: false
             referencedRelation: "m_product"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "m_product_tag_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
             referencedColumns: ["id"]
           },
         ]
@@ -147,36 +160,36 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          tag_name: string | null
-          user_id: string | null
+          tag_name: string
+          user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
-          tag_name?: string | null
-          user_id?: string | null
+          tag_name: string
+          user_id: string
         }
         Update: {
           created_at?: string
           id?: string
-          tag_name?: string | null
-          user_id?: string | null
+          tag_name?: string
+          user_id?: string
         }
         Relationships: []
       }
       user: {
         Row: {
-          display_name: string | null
+          display_name: string
           id: string
           username: string
         }
         Insert: {
-          display_name?: string | null
+          display_name: string
           id: string
           username: string
         }
         Update: {
-          display_name?: string | null
+          display_name?: string
           id?: string
           username?: string
         }

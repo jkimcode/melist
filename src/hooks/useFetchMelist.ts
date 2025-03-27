@@ -4,7 +4,7 @@ import { fetchMelistData } from "../supabase/api";
 import { supabase } from "../supabase/client";
 
 export default function useFetchMelist() {
-    const [listData, setListData] = useState<MelistData | null>(null)
+    const [listData, setListData] = useState<MelistData>([])
 
     const populateList = async () => {
         const { data: { user } } = await supabase.auth.getUser()

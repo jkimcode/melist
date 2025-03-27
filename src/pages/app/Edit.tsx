@@ -1,20 +1,28 @@
 import { ArrowLeftIcon, ArrowRightIcon, ClockIcon, PencilSquareIcon } from "@heroicons/react/24/outline"
 import Melist from "../../components/Melist"
-import { Dispatch, RefObject, SetStateAction, useEffect, useRef, useState } from "react"
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { PlusCircleIcon } from "@heroicons/react/16/solid"
 import Toggle from "../../components/Toggle"
 import { useSearchParams } from "react-router"
 import { SetURLSearchParams } from "react-router"
-import { MelistData, MelistStyles, ProductData, TagSelectable } from "../../common/types"
+import { MelistData, MelistStyles, PostProduct, PostProductTag, ProductData, ResponseTag, TagSelectable } from "../../common/types"
 import useFetchMelist from "../../hooks/useFetchMelist"
 import { supabase } from "../../supabase/client"
 import Spinner from "../../components/icons/spinner"
+import { fetchTags, fetchUserId } from "../../supabase/api"
+import { clone } from "../../common/utils"
+import useFetchUser from "../../hooks/useFetchUser"
+import { updateExistingProduct, uploadProduct } from "../../supabase/api/m_product"
+import { fetchProductTags, uploadProductTags } from "../../supabase/api/m_product_tag"
+import { fetchUserTags, uploadTag } from "../../supabase/api/tags"
+import { fetchUser } from "../../supabase/api/user"
 
 function Edit() {
     const [urlParams, setUrlParams] = useSearchParams()
     const [styles, setStyles] = useState<MelistStyles>({bgColor: "gray-100"})
     const { listData, populateList } = useFetchMelist()
+    const { userData } = useFetchUser() // todo: replace 
 
     // add product flow
     const [productName, setProductName] = useState<string>("")
@@ -23,54 +31,44 @@ function Edit() {
     const [productLink, setProductLink] = useState<string>("")
     const [sectionId, setSectionId] = useState<string>("")
 
-    const findProduct = (productId: string | null) => {
-        if (!productId) return null 
-        if (!listData) return null
+    const findUrlProduct = () => {
+        const productId = urlParams.get("productId")
+        let productData: ProductData | null = null
 
-        // need to search through all sections
-        let res : ProductData | null = null
-        listData.forEach(section => {
+        // search through all sections
+        listData.forEach(section => 
             section.products.forEach(product => {
                 if (product.id == productId) {
-                    res = product
-                    return 
+                    productData = product
                 }
-            })
-        })
-        return res
+            }))
+        
+        return productData
     }
-    const uploadProduct = async () => {
-        const { data: { user } } = await supabase.auth.getUser()
-
-        if (!user) return
-
-        const { data, error } = await supabase.from('m_product').insert([{ 
-            user_id: user.id, 
+    const onClickUpload = async () => {
+        const postProduct: PostProduct = {
+            user_id: userData.userId, 
             reaction, 
             include_link_if_present: true, 
             product_name: productName, 
             section_id: sectionId,
-            rank_within_section: "a"
-        }]).select()
-
-        if (error) {
-            console.log('error insert product', error)
-            return 
+            rank_within_section: "a",
+            product_link: productLink
         }
+        const postProductResp = await uploadProduct(postProduct)
+        if (!postProductResp) return 
 
-        console.log(data)
-        const productTags = tags.map(item => ({ tag_id: item.id, m_product_id: data[0].id, user_id: user.id }))
-        const { error: error2 } = await supabase.from('m_product_tag').insert(productTags)
-
-        if (error2) {
-            console.log('error inserting product tags', error2)
-            return 
-        }
+        // post product tags using returned product's id
+        const postProductTags: PostProductTag[] = tags.map(item => ({ 
+            tag_id: item.id, 
+            m_product_id: postProductResp.id, 
+            user_id: userData.userId 
+        }))
+        const postProductTagsResp = await uploadProductTags(postProductTags)
+        if (!postProductTagsResp) return 
 
         // fetch again to update melist display
         populateList()
-
-        return data[0].id
     }
     return (
         <div className="mx-auto max-w-5xl p-4">
@@ -78,7 +76,7 @@ function Edit() {
                 <div className="flex flex-col">
                     <div className="font-extrabold text-3xl mt-16 justify-self-start">Edit</div>
                     <div className="mt-4 flex gap-8">
-                        <Melist melistData={listData ? listData : undefined} displayMode="edit" styles={styles} />
+                        <Melist userData={userData} melistData={listData ? listData : undefined} displayMode="edit" styles={styles} />
                         <div className={`bg-gray-100 h-fit p-8 rounded-md items-center w-xl text-lg transition-[width] duration-100`}>
                             {(urlParams.get("view") == undefined || urlParams.get("view") == "") && (
                                 <>
@@ -88,15 +86,13 @@ function Edit() {
                                             className="p-6 bg-gray-200 font-semibold text-sm flex justify-between hover:bg-gray-300"
                                             onClick={() => {setUrlParams((prev) => { 
                                                 // if at least one user-created section, prompt for choice
-                                                console.log(listData)
                                                 if (listData?.length == 1 && listData[0].section_name == "featured") {
                                                     prev.set("view", "step1") 
                                                 } else {
                                                     prev.set("view", "step0") 
                                                 }
                                                 return prev
-                                            } )}}
-                                        >
+                                            } )}}>
                                             <div>Add a product</div>
                                             <ArrowRightIcon className="size-5" />
                                         </div>
@@ -105,8 +101,7 @@ function Edit() {
                                             onClick={() => setUrlParams(prev => {
                                                 prev.set("view", "customize")
                                                 return prev
-                                            })}
-                                        >
+                                            })}>
                                             Customize colors / background
                                             <ArrowRightIcon className="size-5" />
                                         </div>
@@ -116,8 +111,7 @@ function Edit() {
                                                 const params = new URLSearchParams()
                                                 params.set("view", "help")
                                                 setUrlParams(params)
-                                            }}
-                                        >
+                                            }}>
                                             Edit / remove a product
                                             <ArrowRightIcon className="size-5" />
                                         </div>
@@ -132,8 +126,7 @@ function Edit() {
                                         transition={{ type: "spring", duration: 0.1, bounce: 0 }}
                                         initial={{ x: -10 }}
                                         animate={{ x: 0 }}
-                                        exit={{ x: -10 }}
-                                    >
+                                        exit={{ x: -10 }}>
                                         <Step0View sectionId={sectionId} setSectionId={setSectionId} sections={listData!} setUrlParams={setUrlParams} />
                                     </motion.div>
                                 </AnimatePresence>
@@ -194,7 +187,7 @@ function Edit() {
                                         animate={{ x: 0 }}
                                         exit={{ x: -10 }}
                                     >
-                                        <Step5View uploadProduct={uploadProduct} setProductLink={setProductLink} setUrlParams={setUrlParams} />
+                                        <Step5View onClickUpload={onClickUpload} productLink={productLink} setProductLink={setProductLink} setUrlParams={setUrlParams} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -254,7 +247,10 @@ function Edit() {
                                         animate={{ x: 0 }}
                                         exit={{ x: -10 }}
                                     >
-                                        <SelectedView setUrlParams={setUrlParams} isNew={urlParams.get("context") == "created"} product={findProduct(urlParams.get("productId"))} />
+                                        <SelectedView 
+                                            setUrlParams={setUrlParams} 
+                                            isNew={urlParams.get("context") == "created"} 
+                                            product={findUrlProduct()} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -266,7 +262,9 @@ function Edit() {
                                         animate={{ x: 0 }}
                                         exit={{ x: -10 }}
                                     >
-                                        <EditSelectedView setUrlParams={setUrlParams} />
+                                        <EditSelectedView 
+                                            setUrlParams={setUrlParams} 
+                                            product={findUrlProduct()} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -302,7 +300,7 @@ function Step0View({ setUrlParams, sections, setSectionId, sectionId } : Step0Vi
             <div>
                 <div className="font-semibold text-2xl">Select a section for the product</div>
                 <div className="mt-8 flex gap-3">
-                    {sections.map(item => (
+                    {sections?.map(item => (
                         <button 
                             className={`p-6 w-fit rounded-sm bg-gray-200 font-semibold text-sm hover:cursor-pointer ${sectionId == item.section_id && "bg-yellow-100"}`}
                             onClick={() => setSectionId(item.section_id)}
@@ -383,18 +381,12 @@ function Step2View({ setTags, setUrlParams } : Step2ViewProps ) {
     const [tagOptions, setTagOptions] = useState<TagSelectable[]>([])
     const newTagRef = useRef<HTMLInputElement>(null)
     const addNewTag = async (tagName : string) => {
-        const { data: { user } } = await supabase.auth.getUser()
+        const response: ResponseTag | null = await uploadTag(tagName)
 
-        if (!user) return
+        if (!response) return 
 
-        const { data, error } = await supabase.from('tags').insert([{ tag_name: tagName , user_id: user.id }]).select()
-
-        if (error) {
-            console.log('error uploading new tag', error)
-            return 
-        }
-
-        setTagOptions(prev => ([...prev, {...data[0]}]))
+        setTagOptions(prev => ([...prev, {id: response.tag_id, 
+                        tag_name: response.tag_name, selected: false }]))
 
         newTagRef.current!.value = ""
     }
@@ -567,19 +559,20 @@ function Step4View({ setUrlParams } : Step4ViewProps ) {
 }
 
 interface Step5ViewProps {
-    uploadProduct: () => Promise<string>;
+    onClickUpload: () => Promise<void>;
+    productLink: string;
     setProductLink: Dispatch<SetStateAction<string>>;
     setUrlParams: SetURLSearchParams;
 }
-function Step5View({ uploadProduct, setProductLink, setUrlParams } : Step5ViewProps ) {
+function Step5View({ onClickUpload, productLink, setProductLink, setUrlParams } : Step5ViewProps ) {
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const clickHandler = async () => {
         setIsLoading(true);
-        const uploadedProductId = await uploadProduct()
+        const uploadedProductId = await onClickUpload()
         setIsLoading(false)
         setUrlParams(prev => {
             prev.set("view", "selected")
-            prev.set("productId", uploadedProductId)
+            prev.set("productId", "")
             prev.set("context", "created")
             return prev
         })
@@ -590,7 +583,13 @@ function Step5View({ uploadProduct, setProductLink, setUrlParams } : Step5ViewPr
                 <div className="font-semibold text-sm">final step!</div>
                 <div className="mt-8">
                     <div className="font-semibold text-xl">Add a link for others to view this product</div>
-                    <input onChange={(e) => setProductLink(e.target.value)} className="py-2 px-4 mt-4 bg-white w-full rounded-md text-sm" placeholder="type here..." />
+                    <input 
+                        onChange={(e) => {
+                            const val = e.target.value
+                            setProductLink(val)
+                        }}
+                        className="py-2 px-4 mt-4 bg-white w-full rounded-md text-sm" placeholder="type here..." 
+                    />
                 </div>
             </div>
             <div className="mt-16 flex gap-2">
@@ -607,7 +606,8 @@ function Step5View({ uploadProduct, setProductLink, setUrlParams } : Step5ViewPr
                     className="py-2 w-24 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
                     onClick={() => clickHandler()}
                 >
-                    {isLoading && <Spinner />} skip
+                    {isLoading && <Spinner />} 
+                    {productLink.length > 0 ? "done" : "skip"}
                 </div>
             </div>
         </div>
@@ -808,16 +808,17 @@ interface SelectedViewProps {
     product: ProductData | null;
 }
 function SelectedView({ setUrlParams, product, isNew } : SelectedViewProps) {
-    return (
-        <div>
+    return (<>
+        {!product && <div>no product found. click on another one</div>}
+        {product && (<div>
             {isNew && <div className="font-semibold text-sm mb-8">added to your list!</div>}
             <div className="flex gap-2">
-                {product?.tags && product.tags.length > 0 && product.tags.map(item => (
-                    <div className="px-4 py-1 bg-white rounded-full text-sm">{item.tag_name}</div>
+                {product.tags && product.tags.length > 0 && product.tags.map(item => (
+                    <div key={item.tag_id} className="px-4 py-1 bg-white rounded-full text-sm">{item.tag_name}</div>
                 ))}
             </div>
             <div className="mt-4">
-                <div className="text-2xl font-bold">{product?.product_name}</div>
+                <div className="text-2xl font-bold">{product.product_name}</div>
                 <div className="h-30 w-50 bg-white rounded-md mt-4"></div>
                 <div className="mt-4">{product?.reaction}</div>
             </div>
@@ -835,41 +836,140 @@ function SelectedView({ setUrlParams, product, isNew } : SelectedViewProps) {
                     className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
                     onClick={() => setUrlParams(prev => {
                         prev.set("view", "editSelected")
+                        prev.set("productId", product ? product.id : "")
                         return prev
                     })}
                 >
                     <PencilSquareIcon className="size-5 stroke-2 mr-1" /> edit
                 </div>
             </div>
-        </div>
-    )
+        </div>)}
+        
+    </>)
 }
 
 interface EditSelectedViewProps {
     setUrlParams: SetURLSearchParams;
+    product: ProductData | null;
 }
-function EditSelectedView({ setUrlParams } : EditSelectedViewProps) {
+function EditSelectedView({ setUrlParams, product } : EditSelectedViewProps) {
+    const [tagOptions, setTagOptions] = useState<TagSelectable[]>([])
+    const [initialTags, setInitialTags] = useState<TagSelectable[]>([])
+    const [reaction, setReaction] = useState<string>("")
+    const [productLink, setProductLink] = useState<string>("")
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const populateTagOptions = async () => {
+        if (!product) return 
+
+        const userTags = await fetchUserTags()
+        const productTags = await fetchProductTags(product.id)
+
+        if (!userTags || !productTags) return 
+
+        // reformat
+        const userTagsSelectable: TagSelectable[] = 
+            userTags.map(userTag => ({ 
+                id: userTag.tag_id, tag_name: userTag.tag_name, selected: false }))
+
+        // mark product tags selected
+        productTags.forEach(productTag => {
+            const matchingIdx = userTagsSelectable
+                .findIndex(userTag => userTag.id == productTag.tag_id)
+            userTagsSelectable[matchingIdx].selected = true
+        })
+
+        setTagOptions(userTagsSelectable)
+        setInitialTags(clone(userTagsSelectable))
+    }
+    const submitUpdate = async () => {
+        if (!product) return 
+
+        setIsLoading(true)
+
+        // update product
+        const response = updateExistingProduct({ reaction, 
+            product_link: productLink } , product.id)
+
+        if (!response) return 
+
+        // update tags
+        const tagsToDelete : TagSelectable[] = [] 
+        const tagsToAdd : TagSelectable[] = []
+
+        tagOptions.forEach((item,i) => {
+            if (item.selected && !initialTags[i].selected) 
+                tagsToAdd.push(item)
+            if (!item.selected && initialTags[i].selected) 
+                tagsToDelete.push(item)
+        })
+
+        const user = await fetchUser()
+        if (!user) return
+        
+        const uploaded = uploadProductTags(tagsToAdd.map(item => 
+            ({ tag_id: item.id, m_product_id: product.id, user_id: user.userId })))
+        if (!uploaded) return 
+
+        const { data, error } = await supabase
+            .from("m_product_tag")
+            .delete()
+            .eq("m_product_id", product.id)
+            .eq("user_id", user.userId)
+            .in("tag_id", tagsToDelete.map(toDel => toDel.id))
+            .select()
+        if (error) console.log("error removing tags", error)
+
+        setIsLoading(false)
+    }
+    useEffect(() => {
+        populateTagOptions()
+
+        if (product?.reaction) setReaction(product.reaction)
+        if (product?.product_link) setProductLink(product.product_link)
+    },[])
     return (
         <div>
             <div className="font-semibold text-sm">make any edits here...</div>
             <div className="mt-4">
-                <div className="font-semibold text-3xl">Neon Pajamas</div>
+                <div className="font-semibold text-3xl">{product?.product_name}</div>
                 <div className="mt-8 flex flex-col gap-12">
                     <div>
                         <div>modifiers</div>
                         <div className="flex gap-2 font-medium mt-2">
-                            <div className="px-4 py-1 bg-white rounded-full text-sm flex items-center justify-center">fave</div>
-                            <div className="px-4 py-1 bg-white rounded-full text-sm">seasonal</div>
-                            <div className="px-4 py-1 bg-white rounded-full text-sm">endorsement</div>
+                            {tagOptions.map((item,i) => (
+                                <div 
+                                    key={item.id}
+                                    className={`px-4 py-1 bg-white rounded-full text-sm ${item.selected && "bg-yellow-100"} hover:pointer-cursor`}
+                                    onClick={() => {
+                                        const isSelected = item.selected
+                                        setTagOptions(prev => {
+                                            const updated = [...prev]
+                                            updated[i].selected = !isSelected
+                                            return updated
+                                        })
+                                    }}
+                                >
+                                    {item.tag_name}
+                                </div>
+                            ))}
                         </div>
                     </div>
                     <div>
                         <div>your reaction</div>
-                        <textarea className="bg-white p-2 text-sm rounded-md w-4/5 mt-2" />
+                        <textarea 
+                            className="bg-white p-2 text-sm rounded-md w-4/5 mt-2" 
+                            value={reaction}
+                            onChange={(e) => setReaction(e.target.value)}
+                        />
                     </div>
                     <div>
-                        <div className="mb-2">include product link?</div>
-                        <Toggle />
+                        <div>product link</div>
+                        <input 
+                            value={productLink}
+                            onChange={(e) => setProductLink(e.target.value)} 
+                            className="p-2 mt-2 bg-white w-4/5 rounded-md text-sm" 
+                            placeholder="type here..." 
+                        />
                     </div>
                 </div>
             </div>
@@ -886,8 +986,9 @@ function EditSelectedView({ setUrlParams } : EditSelectedViewProps) {
                     </div>
                     <div 
                         className="py-2 px-6 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
-                        onClick={() => {}}
+                        onClick={() => submitUpdate()}
                     >
+                        {isLoading && <Spinner />}
                         save
                     </div>
                 </div>
