@@ -46,6 +46,17 @@ export type UserData = {
     displayName: string
 }
 
+// only for search result
+export type SearchResultCondensedProduct = {
+    product_name: string
+}
+export type SearchResultProfile = {
+    userId: string,
+    username: string,
+    displayName: string,
+    products: SearchResultCondensedProduct[]
+}
+
 // post
 export type PostProduct = {
     user_id: string, 

@@ -94,6 +94,13 @@ export type Database = {
             referencedRelation: "m_section"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "m_product_user_id_fkey1"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
         ]
       }
       m_product_tag: {

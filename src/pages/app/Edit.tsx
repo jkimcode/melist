@@ -733,10 +733,10 @@ function AddSectionView({ populateList, setUrlParams } : AddSectionViewProps) {
         }
 
         console.log(data)
-        setIsLoading(false)
-        sectionRef.current!.value = ""
 
         await populateList()
+
+        setIsLoading(false)
 
         setUrlParams(prev => {
             prev.set("view", "")

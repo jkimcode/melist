@@ -3,7 +3,11 @@ import { useEffect, useState } from "react"
 import useOutsideClick from "../hooks/useOutsideClick";
 import { supabase } from "../supabase/client";
 
-function Navigation() {
+interface NavigationProps {
+    searchText: string
+    setSearchText: React.Dispatch<React.SetStateAction<string>> 
+}
+function Navigation({ searchText, setSearchText } : NavigationProps) {
     const navigate = useNavigate();
     const location = useLocation();
     const {ref, isActive, setIsActive} = useOutsideClick(true)
@@ -35,6 +39,8 @@ function Navigation() {
                             className={`py-2 px-4 bg-gray-200 rounded-md ${(isActive) ? "w-full" : "w-52"} transition-[width] duration-100`}
                             placeholder="search here" 
                             ref={ref}
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
                             onSelect={() => {
                                 setIsActive(true);
                                 navigate("search")

@@ -1,5 +1,5 @@
 import { ExclamationCircleIcon, HeartIcon, PlusCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { MelistData, MelistStyles, ProductDetails, SectionData, SectionDetails, UserData } from "../common/types";
+import { MelistData, MelistStyles, ProductDetails, SearchResultProfile, SectionData, SectionDetails, UserData } from "../common/types";
 import { SetStateAction, useState } from "react";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { Link, useSearchParams } from "react-router";
@@ -10,18 +10,20 @@ type hoveredProductSetter = React.Dispatch<SetStateAction<ProductDetails | null>
 type clickedProductSetter = React.Dispatch<SetStateAction<ProductDetails | null>>;
 interface MelistProps {
     melistData?: MelistData; // todo: require this
+    searchResultProfile?: SearchResultProfile;
     userData?: UserData;
     displayMode: string;
     setHoveredProduct?: hoveredProductSetter;
     setClickedProduct?: clickedProductSetter;
     styles?: MelistStyles;
 }
-function Melist({ melistData, displayMode, setHoveredProduct, setClickedProduct, styles, userData } : MelistProps) {
+function Melist({ melistData, searchResultProfile, displayMode, setHoveredProduct, setClickedProduct, styles, userData } : MelistProps) {
     if (displayMode == "condensed") return <MelistCondensedView />
     if (displayMode == "profile" && setHoveredProduct && melistData) return <MelistProfileView data={melistData} setHovered={setHoveredProduct} />
     if (displayMode == "my" && setClickedProduct && melistData) return <MelistMyView data={melistData} setClicked={setClickedProduct} />
     if (displayMode == "edit" && styles && melistData && userData) return <MelistEditView user={userData} data={melistData} styles={styles} />
     if (displayMode == "minimized") return <MelistMinimizedView />
+    if (displayMode == "search" && searchResultProfile) return <MelistSearchView data={searchResultProfile} />
 }
 
 function MelistCondensedView() {
@@ -218,6 +220,37 @@ function MelistMyView({ data, setClicked } : { data: MelistData, setClicked: cli
             </div>
         </div>
     )
+}
+
+function MelistSearchView({ data } : { data: SearchResultProfile }) {
+    return (
+        <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-md">
+            {/* header */}
+            <div className="flex gap-4">
+                <div className="bg-white rounded-full size-12" />
+                <div>
+                    <div className="font-bold text-xl">{data.displayName}</div>
+                    <div className="text-xs">{data.products.length} products</div>
+                </div>
+            </div>
+
+            {/* products */}
+            <div className="flex flex-col gap-2">
+                {data.products.slice(0,3).map(product => (
+                    <div key={product.product_name} className="flex">
+                        <div className="bg-white size-14 rounded-l-md"></div>
+                        <div className="bg-gray-200 w-full rounded-r-md">{product.product_name}</div>
+                    </div>
+                ))}
+            </div>
+
+            {/* buttons */}
+            <div className="flex gap-4">
+                <Link to="/12" className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">view all</Link>
+                <div className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold"><HeartIcon className="size-5 stroke-2" /></div>
+            </div>
+        </div>
+    )   
 }
 
 
