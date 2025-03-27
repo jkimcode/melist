@@ -23,7 +23,6 @@ function Search() {
 
         if (!group1) return
 
-
         const group1Formatted: SearchResultProfile[] = group1.map(user => ({
             userId: user.id,
             displayName: user.display_name,
@@ -37,15 +36,16 @@ function Search() {
         console.log(searchText)
 
         search(searchText)
-        // search: username, displayname
         
     },[searchText])
     return (
         <div className="mx-auto max-w-5xl p-4">
             <div className="font-bold text-3xl mt-16">Results</div>
-            {searchResultProfiles.map(profile => (
-                <Melist key={profile.userId} displayMode="search" searchResultProfile={profile} />
-            ))}            
+            <div className="grid grid-cols-2 mt-4 gap-6">
+                {searchResultProfiles.map(profile => (
+                    <Melist key={profile.userId} displayMode="search" searchResultProfile={profile} />
+                ))}        
+            </div>    
         </div>
     )
 }
