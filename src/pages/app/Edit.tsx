@@ -264,6 +264,7 @@ function Edit() {
                                     >
                                         <EditSelectedView 
                                             setUrlParams={setUrlParams} 
+                                            populateList={populateList}
                                             product={findUrlProduct()} />
                                     </motion.div>
                                 </AnimatePresence>
@@ -850,9 +851,10 @@ function SelectedView({ setUrlParams, product, isNew } : SelectedViewProps) {
 
 interface EditSelectedViewProps {
     setUrlParams: SetURLSearchParams;
+    populateList: () => Promise<void>;
     product: ProductData | null;
 }
-function EditSelectedView({ setUrlParams, product } : EditSelectedViewProps) {
+function EditSelectedView({ setUrlParams, populateList, product } : EditSelectedViewProps) {
     const [tagOptions, setTagOptions] = useState<TagSelectable[]>([])
     const [initialTags, setInitialTags] = useState<TagSelectable[]>([])
     const [reaction, setReaction] = useState<string>("")
@@ -920,6 +922,14 @@ function EditSelectedView({ setUrlParams, product } : EditSelectedViewProps) {
         if (error) console.log("error removing tags", error)
 
         setIsLoading(false)
+
+        // refetch list data
+        await populateList()
+        
+        setUrlParams(prev => {
+            prev.set("view", "selected")
+            return prev
+        })
     }
     useEffect(() => {
         populateTagOptions()
