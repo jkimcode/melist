@@ -34,7 +34,7 @@ function Navigation({ searchText, setSearchText } : NavigationProps) {
             <div className="mx-auto max-w-5xl p-4">
                 <div className="flex justify-between items-center gap-6">
                     <div className="flex gap-4 w-full">
-                        <Link to="home" className="font-bold text-3xl">melist</Link>
+                        <Link to="/" className="font-bold text-3xl">melist</Link>
                         <input 
                             className={`py-2 px-4 bg-gray-200 rounded-md ${(isActive) ? "w-full" : "w-52"} transition-[width] duration-100`}
                             placeholder="search here" 

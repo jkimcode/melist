@@ -26,3 +26,21 @@ export async function updateExistingProduct(updateProduct: UpdateProduct, produc
     
     return data
 }
+
+export async function fetchProductById(productId: string) {
+    const { data, error } = await supabase
+        .from("m_product")
+        .select("*")
+        .eq("id", productId)
+
+    if (error) {
+        console.log("error fetch product by id", error)
+        return null
+    }
+
+    if (!data || data.length == 0) {
+        return null
+    }
+
+    return data[0]
+}

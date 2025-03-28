@@ -24,10 +24,10 @@ function Profile() {
         useState<ResponseFetchProductUserSave[]>([])
 
     const onClickSave = async (productId: string) => {
-        if (!userId || !sessionUser) return 
+        if (!userData || !userId || !sessionUser) return 
         await uploadProductUserSave({ 
             m_product_id: productId, 
-            user_id: userData.userId, 
+            user_id: sessionUser.userId, 
             src_user_id: userId })
         setSessionUserSavedProducts(prev => {
             prev = [...prev, 
