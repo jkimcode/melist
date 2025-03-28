@@ -47,7 +47,7 @@ function MyProfile() {
                                     <div className="text-xl">stats</div>
                                     <div className="text-xl flex flex-col gap-2 mt-4">
                                         <div><span className="font-bold">40k</span> visitors</div>
-                                        <div><span className="font-bold">17k</span> likes</div>
+                                        <div><span className="font-bold">17k</span> followers</div>
                                     </div>
                                 </div>
                             )}

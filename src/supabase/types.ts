@@ -142,6 +142,52 @@ export type Database = {
           },
         ]
       }
+      m_product_user_save: {
+        Row: {
+          created_at: string
+          id: string
+          m_product_id: string
+          src_user_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          m_product_id: string
+          src_user_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          m_product_id?: string
+          src_user_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "m_product_user_save_m_product_id_fkey"
+            columns: ["m_product_id"]
+            isOneToOne: false
+            referencedRelation: "m_product"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "m_product_user_save_src_user_id_fkey"
+            columns: ["src_user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "m_product_user_save_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       m_section: {
         Row: {
           created_at: string

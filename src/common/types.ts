@@ -72,6 +72,11 @@ export type PostProductTag = {
     m_product_id: string, 
     user_id: string
 }
+export type PostProductUserSave = {
+    user_id: string,
+    m_product_id: string,
+    src_user_id: string
+}
 
 // update
 export type UpdateProduct = {
@@ -87,5 +92,10 @@ export type ResponseTag = {
     tag_id: string,
     user_id: string,
     tag_name: string
+}
+export type ResponseFetchProductUserSave = {
+    user_id: string,
+    src_user_id?: string,
+    m_product_id: string
 }
 

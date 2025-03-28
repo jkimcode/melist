@@ -1,15 +1,58 @@
 import { useEffect, useState } from "react"
 import Melist from "../../components/Melist"
-import { ProductData } from "../../common/types"
+import { ProductData, ResponseFetchProductUserSave, UserData } from "../../common/types"
 import useFetchMelist from "../../hooks/useFetchMelist";
 import { useParams } from "react-router";
 import useFetchUser from "../../hooks/useFetchUser";
+import { fetchProductUserSaves, uploadProductUserSave } from "../../supabase/api/m_product_user_save";
+import { fetchSessionuser } from "../../supabase/api/user";
+import { CheckCircleIcon } from "@heroicons/react/24/outline";
 
 function Profile() {
     const [hoveredProduct, setHoveredProduct] = useState<ProductData | null>(null);
+    
+    // profile user
     let  { userId } = useParams()
     const { listData } = useFetchMelist(userId)
     const { userData } = useFetchUser(userId)
+
+    // session user
+    const [sessionUser, setSessionUser] = useState<UserData | null>(null)
+
+    // products in list saved by session user
+    const [sessionUserSavedProducts, setSessionUserSavedProducts] = 
+        useState<ResponseFetchProductUserSave[]>([])
+
+    const onClickSave = async (productId: string) => {
+        if (!userId || !sessionUser) return 
+        await uploadProductUserSave({ 
+            m_product_id: productId, 
+            user_id: userData.userId, 
+            src_user_id: userId })
+        setSessionUserSavedProducts(prev => {
+            prev = [...prev, 
+                    { user_id: sessionUser.userId, src_user_id: userId, m_product_id: productId }]
+            return prev
+        })
+    }
+
+    const getSessionUserSavedProucts = async () => {
+        if (!userId) return
+
+        const sessionUser = await fetchSessionuser()
+        if (!sessionUser) return 
+        setSessionUser(sessionUser)
+
+        const success = await fetchProductUserSaves(userId, sessionUser.userId)
+        if (!success) return 
+
+        console.log(success)
+        setSessionUserSavedProducts(success)
+    }
+
+    useEffect(() => {
+        getSessionUserSavedProucts()
+    },[])
 
     return (
         <div className="mx-auto max-w-5xl" onMouseLeave={() => setHoveredProduct(null)}>
@@ -29,7 +72,16 @@ function Profile() {
                                 <div className="mt-4">{hoveredProduct.reaction}</div>
                             </div>
                             <div className="mt-16">
-                                <div className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">save</div>
+                                <div 
+                                    className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold hover:cursor-pointer"
+                                    onClick={() => onClickSave(hoveredProduct.id)}
+                                >
+                                    {sessionUserSavedProducts.find(product => product.m_product_id == hoveredProduct.id) ? 
+                                        <div className="flex items-center">
+                                            <CheckCircleIcon className="size-5 stroke-2 mr-1" /> saved
+                                        </div>  
+                                        : "save"}
+                                </div>
                             </div>
                         </div>
                     )}
