@@ -1,6 +1,5 @@
 import { PostProductTag, UserData } from "../../common/types";
 import { supabase } from "../client";
-import { fetchUser } from "./user";
 
 export async function uploadProductTags(postProductTags: PostProductTag[]) {
     const { data, error } = await supabase.from("m_product_tag").insert(postProductTags).select()

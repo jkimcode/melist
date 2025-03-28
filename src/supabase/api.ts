@@ -1,4 +1,4 @@
-import { MelistData, ProductData, TagData, TagSelectable, UserData } from "../common/types";
+import { MelistData, ProductData, TagData } from "../common/types";
 import { supabase } from "./client";
 
 // all sections, associated products and tags
@@ -13,7 +13,6 @@ export async function fetchMelistData(userId: string): Promise<MelistData | null
         console.log('error', e1)
         return null
     }
-        
 
     let { data: products, error: e2 } = await supabase
         .from('m_product')
@@ -61,56 +60,4 @@ export async function fetchMelistData(userId: string): Promise<MelistData | null
     }))
 
     return res
-}
-
-// user's tags
-export const fetchTags = async (productId?: string) => {
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-        console.log('no user')
-        return
-    } 
-
-    // user's tags
-    let { data: tags, error } = await supabase
-        .from('tags').select('*').eq('user_id', user.id)
-
-    if (error) {
-        console.log('error fetching tags', error)
-        return
-    } 
-
-    if (!tags) {
-        console.log('no tags')
-        return
-    }
-
-    console.log(tags)
-    const reformatted : TagSelectable[] = tags.map(item => ({ id: item.id, tag_name: item.tag_name, selected: false }))
-
-    // if productId provided, mark tags of product "selected"
-    if (productId) {
-        let { data: tags, error } = await supabase
-            .from('m_product_tag')
-            .select("tag_id, tags ( tag_name )")
-            .eq("m_product_id", productId)
-
-        if (tags) {
-            tags.forEach(item => {
-                const produtTag = reformatted.find(formatted => formatted.id == item.tag_id)
-                if (produtTag) produtTag.selected = true
-            })
-        }
-    }
-
-    return reformatted
-}
-
-export const fetchUserId = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) return null
-
-    return user.id
 }

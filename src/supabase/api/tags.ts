@@ -1,9 +1,9 @@
 import { ResponseTag, UserData } from "../../common/types"
 import { supabase } from "../client"
-import { fetchUser } from "./user"
+import { fetchSessionuser } from "./user"
 
 export async function uploadTag(tagName: string): Promise<ResponseTag | null> {
-    const response = await fetchUser()
+    const response = await fetchSessionuser()
     if (!response) return null 
 
     const { data, error } = await supabase.from('tags').insert([
@@ -28,7 +28,7 @@ export async function uploadTag(tagName: string): Promise<ResponseTag | null> {
 
 export async function fetchUserTags(userId?: string): Promise<ResponseTag[]>  {
     if (!userId) {
-        const response = await fetchUser()
+        const response = await fetchSessionuser()
         if (response) userId = response.userId
         else return []
     }

@@ -10,13 +10,12 @@ import { MelistData, MelistStyles, PostProduct, PostProductTag, ProductData, Res
 import useFetchMelist from "../../hooks/useFetchMelist"
 import { supabase } from "../../supabase/client"
 import Spinner from "../../components/icons/spinner"
-import { fetchTags, fetchUserId } from "../../supabase/api"
 import { clone } from "../../common/utils"
 import useFetchUser from "../../hooks/useFetchUser"
 import { updateExistingProduct, uploadProduct } from "../../supabase/api/m_product"
 import { fetchProductTags, uploadProductTags } from "../../supabase/api/m_product_tag"
 import { fetchUserTags, uploadTag } from "../../supabase/api/tags"
-import { fetchUser } from "../../supabase/api/user"
+import { fetchSessionuser } from "../../supabase/api/user"
 
 function Edit() {
     const [urlParams, setUrlParams] = useSearchParams()
@@ -715,7 +714,7 @@ function AddSectionView({ populateList, setUrlParams } : AddSectionViewProps) {
     const addNewSection = async () => {
         setIsLoading(true)
 
-        const user = await fetchUser()
+        const user = await fetchSessionuser()
         if (!user) return
 
         console.log("user", user)
@@ -918,7 +917,7 @@ function EditSelectedView({ setUrlParams, populateList, product } : EditSelected
                 tagsToDelete.push(item)
         })
 
-        const user = await fetchUser()
+        const user = await fetchSessionuser()
         if (!user) return
         
         const uploaded = uploadProductTags(tagsToAdd.map(item => 

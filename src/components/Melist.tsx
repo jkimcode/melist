@@ -1,12 +1,12 @@
 import { ExclamationCircleIcon, HeartIcon, PlusCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { MelistData, MelistStyles, ProductDetails, SearchResultProfile, SectionData, SectionDetails, UserData } from "../common/types";
+import { MelistData, MelistStyles, ProductData, ProductDetails, SearchResultProfile, SectionData, SectionDetails, UserData } from "../common/types";
 import { SetStateAction, useState } from "react";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { Link, useSearchParams } from "react-router";
 import Product from "./Product";
 import { Reorder } from "framer-motion";
 
-type hoveredProductSetter = React.Dispatch<SetStateAction<ProductDetails | null>>
+type hoveredProductSetter = React.Dispatch<SetStateAction<ProductData | null>>
 type clickedProductSetter = React.Dispatch<SetStateAction<ProductDetails | null>>;
 interface MelistProps {
     melistData?: MelistData; // todo: require this
@@ -19,7 +19,7 @@ interface MelistProps {
 }
 function Melist({ melistData, searchResultProfile, displayMode, setHoveredProduct, setClickedProduct, styles, userData } : MelistProps) {
     if (displayMode == "condensed") return <MelistCondensedView />
-    if (displayMode == "profile" && setHoveredProduct && melistData) return <MelistProfileView data={melistData} setHovered={setHoveredProduct} />
+    if (displayMode == "profile" && setHoveredProduct && melistData && userData) return <MelistProfileView user={userData} data={melistData} setHovered={setHoveredProduct} />
     if (displayMode == "my" && setClickedProduct && melistData) return <MelistMyView data={melistData} setClicked={setClickedProduct} />
     if (displayMode == "edit" && styles && melistData && userData) return <MelistEditView user={userData} data={melistData} styles={styles} />
     if (displayMode == "minimized") return <MelistMinimizedView />
@@ -126,7 +126,7 @@ function MelistMinimizedView() {
     )   
 }
 
-function MelistProfileView({ data, setHovered } : { data: MelistData, setHovered: hoveredProductSetter }) {
+function MelistProfileView({ user, data, setHovered } : { user: UserData, data: MelistData, setHovered: hoveredProductSetter }) {
     // show all products
     return (
         <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-sm">
@@ -134,36 +134,19 @@ function MelistProfileView({ data, setHovered } : { data: MelistData, setHovered
             <div className="flex gap-4">
                 <div className="bg-white rounded-full size-12" />
                 <div>
-                    <div className="font-bold text-xl">Kylie Jenner</div>
+                    <div className="font-bold text-xl">{user.displayName}</div>
                     <div className="text-xs">24 products</div>
                 </div>
             </div>
 
             {/* products */}
             <div>
-                {/* featured */}
-                <div className="flex flex-col gap-2">
-                    <div className="flex" onMouseEnter={() => { setHovered({ productTitle: "product A" }) }}>
-                        <div className="bg-white size-14 rounded-l-md"></div>
-                        <div className="bg-gray-200 w-full rounded-r-md"></div>
-                    </div>
-                    <div className="flex" onMouseEnter={() => { setHovered({ productTitle: "product B" }) }}>
-                        <div className="bg-white size-14 rounded-l-md"></div>
-                        <div className="bg-gray-200 w-full rounded-r-md"></div>
-                    </div>
-                    <div className="flex" onMouseEnter={() => { setHovered({ productTitle: "product C" }) }}>
-                        <div className="bg-white size-14 rounded-l-md"></div>
-                        <div className="bg-gray-200 w-full rounded-r-md"></div>
-                    </div>
-                </div>
-
-                {/* more products */}
                 {data.map(section => (
-                     <div className="mt-6">
+                     <div key={section.section_id} className="mt-6">
                         <div className="font-semibold">{section.section_name}</div>
                         <div className="flex flex-col gap-2 mt-2">
                             {section.products.map(product => (
-                                <div className="flex" key={product.id}>
+                                <div className="flex" key={product.id} onMouseEnter={() => { setHovered(product) }}>
                                     <div className="bg-white size-14 rounded-l-md"></div>
                                     <div className="bg-gray-200 w-full rounded-r-md">{product.reaction} hi</div>
                                 </div>

@@ -5,7 +5,6 @@ import { ArrowLeftIcon } from "@heroicons/react/16/solid";
 import { ChevronDownIcon, ChevronUpIcon, GlobeAmericasIcon } from "@heroicons/react/24/outline";
 import { supabase } from "../../supabase/client";
 import { useNavigate } from "react-router";
-import { fetchMelistData } from "../../supabase/api";
 import useFetchMelist from "../../hooks/useFetchMelist";
 
 function MyProfile() {

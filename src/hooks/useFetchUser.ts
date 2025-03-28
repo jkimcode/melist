@@ -1,41 +1,19 @@
 import { useEffect, useState } from "react";
 import { UserData } from "../common/types";
-import { supabase } from "../supabase/client";
+import { fetchSessionuser, fetchUser } from "../supabase/api/user";
 
-export default function useFetchUser() {
+export default function useFetchUser(userId?: string) {
     const [user, setUser] = useState<UserData>({userId: "", username: "", displayName: ""})
 
-    const fetchUser = async () => {
-        const ls = localStorage.getItem("user")
-    
-        if (ls) {
-            const parsed : UserData = JSON.parse(ls)
-            setUser(parsed)
-        }
-    
-        // session user
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) return  
+    const tryFetch = async () => {
+        let success = null
+        if (userId) success = await fetchUser(userId)
+        else success = await fetchSessionuser()
 
-        // user details
-        const { data } = await supabase.from("user").select("*").eq("id", user.id)
-        if (!data || data.length == 0) return 
-    
-        const profile = data[0]
-    
-        const formattedUser : UserData = {
-            userId: profile.id,
-            username: profile.username,
-            displayName: profile.display_name
-        }
-    
-        localStorage.setItem("user", JSON.stringify(formattedUser))
-    
-        setUser(formattedUser)
+        if (success) setUser(success)
     }
-
     useEffect(() => {
-        fetchUser()
+        tryFetch()
     },[])
 
     return { userData: user }
