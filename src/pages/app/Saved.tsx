@@ -4,20 +4,36 @@ import { useEffect, useState } from "react"
 import { ProductData, ProductDetails } from "../../common/types"
 import { motion } from "framer-motion"
 import useFetchMelist from "../../hooks/useFetchMelist"
-import { fetchProductUserSaves } from "../../supabase/api/m_product_user_save"
+import { deleteProductUserSave, fetchProductUserSaves } from "../../supabase/api/m_product_user_save"
 import useFetchUser from "../../hooks/useFetchUser"
 import { fetchProductById } from "../../supabase/api/m_product"
 import { fetchUser } from "../../supabase/api/user"
+import Spinner from "../../components/icons/spinner"
 
 function Saved() {
     const [hoveredProduct, setHoveredProduct] = useState<ProductData | null>(null)
     const { userData } = useFetchUser()
     const [savedProducts, setSavedProducts] = useState<ProductData[]>([])
+    const [isLoading, setIsLoading] = useState<boolean>(false)
 
     // product id to src username (owner)
     const [productToSrc, setProductToSrc] = 
         useState<{productId: string, srcUsername: string | null}[]>([])
 
+    const onClickRemoveSave = async (productId: string) => {
+        setIsLoading(true)
+        const success = await deleteProductUserSave(userData.userId, productId)
+        
+        if (!success) {
+            setIsLoading(false)
+            return 
+        } 
+        
+        getSavedProducts()
+        setHoveredProduct(null)
+        setIsLoading(false)
+    }
+    
     const getSavedProducts = async () => {
         if (!userData || userData.userId == "") return
 
@@ -100,8 +116,9 @@ function Saved() {
                                     <div className="flex gap-2">
                                         <div 
                                             className="py-2 px-8 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
-                                            onClick={() => {}}
+                                            onClick={() => onClickRemoveSave(hoveredProduct.id)}
                                         >
+                                            {isLoading && <Spinner />}
                                             remove
                                         </div>
                                     </div>

@@ -32,3 +32,18 @@ export async function fetchProductUserSaves(userId: string, srcUserId?: string) 
 
     return data
 }
+
+export async function deleteProductUserSave(userId: string, productId: string) {
+    const { error } = await supabase.from("m_product_user_save")
+        .delete().eq("user_id", userId).eq("m_product_id", productId)
+
+    console.log("user_id", userId)
+    console.log("m_product_id", productId)
+    
+    if (error) {
+        console.log("error delete product user save")
+        return null
+    }
+
+    return []
+}
