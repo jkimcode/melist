@@ -21,6 +21,8 @@ function Saved() {
         useState<{productId: string, srcUsername: string | null}[]>([])
 
     const onClickRemoveSave = async (productId: string) => {
+        if (!userData) return
+
         setIsLoading(true)
         const success = await deleteProductUserSave(userData.userId, productId)
         
@@ -33,7 +35,7 @@ function Saved() {
         setHoveredProduct(null)
         setIsLoading(false)
     }
-    
+
     const getSavedProducts = async () => {
         if (!userData || userData.userId == "") return
 
@@ -68,7 +70,7 @@ function Saved() {
 
     useEffect(() => {
         getSavedProducts()
-    },[userData.userId])
+    },[userData])
 
     return (
         <div className="mx-auto max-w-5xl p-4" onMouseLeave={() => setHoveredProduct(null)}>

@@ -7,6 +7,7 @@ import useFetchUser from "../../hooks/useFetchUser";
 import { fetchProductUserSaves, uploadProductUserSave } from "../../supabase/api/m_product_user_save";
 import { fetchSessionuser } from "../../supabase/api/user";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
+import useFollow from "../../hooks/useFollow";
 
 function Profile() {
     const [hoveredProduct, setHoveredProduct] = useState<ProductData | null>(null);
@@ -18,6 +19,7 @@ function Profile() {
 
     // session user
     const [sessionUser, setSessionUser] = useState<UserData | null>(null)
+    const { followSrcUser, isFollowingSrcUser } = useFollow( sessionUser?.userId, userId )
 
     // products in list saved by session user
     const [sessionUserSavedProducts, setSessionUserSavedProducts] = 
@@ -57,7 +59,13 @@ function Profile() {
     return (
         <div className="mx-auto max-w-5xl" onMouseLeave={() => setHoveredProduct(null)}>
             <div className="mt-12 flex justify-center gap-8">
-                <Melist userData={userData} melistData={listData} setHoveredProduct={setHoveredProduct}  displayMode="profile" />
+                <Melist 
+                    userData={userData} 
+                    melistData={listData} 
+                    setHoveredProduct={setHoveredProduct}  
+                    displayMode="profile" 
+                    onClickFollow={followSrcUser} 
+                    isFollowing={isFollowingSrcUser} />
                 
                 <div className={`bg-gray-100 h-fit p-6 rounded-md ${hoveredProduct ? "w-md" : "w-sm"} transition-[width] duration-100`}>
                     {!hoveredProduct && <div className="pb-8">hover over a product for details...</div>}

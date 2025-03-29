@@ -1,4 +1,4 @@
-import { ExclamationCircleIcon, HeartIcon, PlusCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { CheckIcon, ExclamationCircleIcon, HeartIcon, PlusCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { MelistData, MelistStyles, ProductData, ProductDetails, SearchResultProfile, SectionData, SectionDetails, UserData } from "../common/types";
 import { SetStateAction, useState } from "react";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
@@ -11,18 +11,20 @@ type clickedProductSetter = React.Dispatch<SetStateAction<ProductDetails | null>
 interface MelistProps {
     melistData?: MelistData; // todo: require this
     searchResultProfile?: SearchResultProfile;
-    userData?: UserData;
+    userData?: UserData | null;
     displayMode: string;
     setHoveredProduct?: hoveredProductSetter;
     setClickedProduct?: clickedProductSetter;
     styles?: MelistStyles;
+    onClickFollow?: () => Promise<void>;
+    isFollowing?: boolean;
 }
-function Melist({ melistData, searchResultProfile, displayMode, setHoveredProduct, setClickedProduct, styles, userData } : MelistProps) {
+function Melist({ melistData, searchResultProfile, displayMode, setHoveredProduct, setClickedProduct, styles, userData, onClickFollow, isFollowing } : MelistProps) {
     if (displayMode == "condensed") return <MelistCondensedView />
-    if (displayMode == "profile" && setHoveredProduct && melistData && userData) return <MelistProfileView user={userData} data={melistData} setHovered={setHoveredProduct} />
+    if (displayMode == "profile" && setHoveredProduct && melistData && userData && onClickFollow && isFollowing != undefined) return <MelistProfileView user={userData} data={melistData} setHovered={setHoveredProduct} onClickFollow={onClickFollow} isFollowing={isFollowing} />
     if (displayMode == "my" && setClickedProduct && melistData) return <MelistMyView data={melistData} setClicked={setClickedProduct} />
     if (displayMode == "edit" && styles && melistData && userData) return <MelistEditView user={userData} data={melistData} styles={styles} />
-    if (displayMode == "minimized") return <MelistMinimizedView />
+    if (displayMode == "minimized" && melistData && userData) return <MelistMinimizedView user={userData} data={melistData} />
     if (displayMode == "search" && searchResultProfile) return <MelistSearchView data={searchResultProfile} />
 }
 
@@ -67,7 +69,7 @@ function MelistCondensedView() {
     )   
 }
 
-function MelistMinimizedView() {
+function MelistMinimizedView({ user, data } : { user: UserData, data: MelistData }) {
     const [collapsed, setCollapsed] = useState(true)
 
     // collapsible 
@@ -80,8 +82,8 @@ function MelistMinimizedView() {
                 <div className="flex gap-4">
                     <div className="bg-white rounded-full size-12" />
                     <div>
-                        <div className="font-bold text-xl">Kylie Jenner</div>
-                        <div className="text-xs">24 products</div>
+                        <div className="font-bold text-xl">{user.displayName}</div>
+                        <div className="text-xs">{countProducts(data)}</div>
                     </div>
                 </div>
             )}
@@ -91,8 +93,8 @@ function MelistMinimizedView() {
                     <div className="flex gap-4">
                         <div className="bg-white rounded-full size-12" />
                         <div>
-                            <div className="font-bold text-xl">Kylie Jenner</div>
-                            <div className="text-xs">24 products</div>
+                            <div className="font-bold text-xl">{user.displayName}</div>
+                            <div className="text-xs">{countProducts(data)}</div>
                         </div>
                     </div>
 
@@ -126,7 +128,14 @@ function MelistMinimizedView() {
     )   
 }
 
-function MelistProfileView({ user, data, setHovered } : { user: UserData, data: MelistData, setHovered: hoveredProductSetter }) {
+interface MelistProfileViewProps { 
+    user: UserData, 
+    data: MelistData, 
+    setHovered: hoveredProductSetter, 
+    onClickFollow: () => Promise<void>,
+    isFollowing: boolean
+}
+function MelistProfileView({ user, data, setHovered, onClickFollow, isFollowing } : MelistProfileViewProps) {
     // show all products
     return (
         <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-sm">
@@ -158,7 +167,12 @@ function MelistProfileView({ user, data, setHovered } : { user: UserData, data: 
 
             {/* buttons */}
             <div className="flex gap-4">
-                <div className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold"><HeartIcon className="size-5 stroke-2" /></div>
+                <div 
+                    className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold hover:cursor-pointer"
+                    onClick={() => onClickFollow()}>
+                    {!isFollowing && <><HeartIcon className="size-5 stroke-2 mr-1" /> follow</>}
+                    {isFollowing && <><CheckIcon className="size-5 stroke-2 mr-1" /> following</>}
+                </div>
             </div>
         </div>
     )   
@@ -312,6 +326,12 @@ function Section({section} : {section: SectionData}) {
             )}
         </div>
     )
+}
+
+const countProducts = (melist: MelistData) => {
+    let cnt = 0
+    melist.forEach(section => section.products.forEach(product => { cnt = cnt+1 }))
+    return cnt
 }
 
 export default Melist

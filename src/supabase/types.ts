@@ -248,6 +248,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_user_follow: {
+        Row: {
+          created_at: string
+          id: string
+          src_user_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          src_user_id?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          src_user_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_user_follow_src_user_id_fkey"
+            columns: ["src_user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_user_follow_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

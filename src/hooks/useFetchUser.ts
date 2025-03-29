@@ -3,7 +3,7 @@ import { UserData } from "../common/types";
 import { fetchSessionuser, fetchUser } from "../supabase/api/user";
 
 export default function useFetchUser(userId?: string) {
-    const [user, setUser] = useState<UserData>({userId: "", username: "", displayName: ""})
+    const [user, setUser] = useState<UserData | null>(null)
 
     const tryFetch = async () => {
         let success = null

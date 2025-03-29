@@ -14,6 +14,7 @@ function MyProfile() {
     const navigate = useNavigate()
 
     const logout = async () => {
+        localStorage.removeItem("user")
         const { error } = await supabase.auth.signOut()
         navigate('/')
     }

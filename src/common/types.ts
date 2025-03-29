@@ -57,6 +57,17 @@ export type SearchResultProfile = {
     products: SearchResultCondensedProduct[]
 }
 
+// only for followed
+export type FollowedCondensedProduct = {
+    product_name: string
+}
+export type FollowedProfile = {
+    userId: string,
+    username: string,
+    displayName: string,
+    products: FollowedCondensedProduct[]
+}
+
 // post
 export type PostProduct = {
     user_id: string, 
