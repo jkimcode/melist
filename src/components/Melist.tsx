@@ -17,11 +17,12 @@ interface MelistProps {
     setClickedProduct?: clickedProductSetter;
     styles?: MelistStyles;
     onClickFollow?: () => Promise<void>;
+    onClickUnfollow?: () => Promise<void>;
     isFollowing?: boolean;
 }
-function Melist({ melistData, searchResultProfile, displayMode, setHoveredProduct, setClickedProduct, styles, userData, onClickFollow, isFollowing } : MelistProps) {
+function Melist({ melistData, searchResultProfile, displayMode, setHoveredProduct, setClickedProduct, styles, userData, onClickFollow, onClickUnfollow, isFollowing } : MelistProps) {
     if (displayMode == "condensed") return <MelistCondensedView />
-    if (displayMode == "profile" && setHoveredProduct && melistData && userData && onClickFollow && isFollowing != undefined) return <MelistProfileView user={userData} data={melistData} setHovered={setHoveredProduct} onClickFollow={onClickFollow} isFollowing={isFollowing} />
+    if (displayMode == "profile" && setHoveredProduct && melistData && userData && onClickFollow && onClickUnfollow && isFollowing != undefined) return <MelistProfileView user={userData} data={melistData} setHovered={setHoveredProduct} onClickFollow={onClickFollow} onClickUnfollow={onClickUnfollow} isFollowing={isFollowing} />
     if (displayMode == "my" && setClickedProduct && melistData) return <MelistMyView data={melistData} setClicked={setClickedProduct} />
     if (displayMode == "edit" && styles && melistData && userData) return <MelistEditView user={userData} data={melistData} styles={styles} />
     if (displayMode == "minimized" && melistData && userData) return <MelistMinimizedView user={userData} data={melistData} />
@@ -133,9 +134,10 @@ interface MelistProfileViewProps {
     data: MelistData, 
     setHovered: hoveredProductSetter, 
     onClickFollow: () => Promise<void>,
+    onClickUnfollow: () => Promise<void>,
     isFollowing: boolean
 }
-function MelistProfileView({ user, data, setHovered, onClickFollow, isFollowing } : MelistProfileViewProps) {
+function MelistProfileView({ user, data, setHovered, onClickFollow, onClickUnfollow, isFollowing } : MelistProfileViewProps) {
     // show all products
     return (
         <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-sm">
@@ -169,7 +171,7 @@ function MelistProfileView({ user, data, setHovered, onClickFollow, isFollowing 
             <div className="flex gap-4">
                 <div 
                     className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold hover:cursor-pointer"
-                    onClick={() => onClickFollow()}>
+                    onClick={() => isFollowing ? onClickUnfollow() : onClickFollow()}>
                     {!isFollowing && <><HeartIcon className="size-5 stroke-2 mr-1" /> follow</>}
                     {isFollowing && <><CheckIcon className="size-5 stroke-2 mr-1" /> following</>}
                 </div>

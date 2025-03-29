@@ -17,6 +17,18 @@ export async function uploadUserFollow(userId: string, srcUserId: string) {
     return data[0]
 }
 
+export async function deleteUserFollow(userId: string, srcUserId: string) {
+    const { data, error } = await supabase.from("user_user_follow")
+        .delete().eq("user_id", userId).eq("src_user_id", srcUserId).select()
+
+    if (error) {
+        console.log("error delete user follow", error)
+        return null
+    }
+
+    return data
+}
+
 export async function fetchUserFollow(userId: string) {
     const { data, error } = await supabase.from("user_user_follow")
         .select("*").eq("user_id", userId)

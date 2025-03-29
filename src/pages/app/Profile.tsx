@@ -19,7 +19,9 @@ function Profile() {
 
     // session user
     const [sessionUser, setSessionUser] = useState<UserData | null>(null)
-    const { followSrcUser, isFollowingSrcUser } = useFollow( sessionUser?.userId, userId )
+    const { followSrcUser, 
+            unfollowSrcUser, 
+            isFollowingSrcUser } = useFollow( sessionUser?.userId, userId )
 
     // products in list saved by session user
     const [sessionUserSavedProducts, setSessionUserSavedProducts] = 
@@ -65,6 +67,7 @@ function Profile() {
                     setHoveredProduct={setHoveredProduct}  
                     displayMode="profile" 
                     onClickFollow={followSrcUser} 
+                    onClickUnfollow={unfollowSrcUser}
                     isFollowing={isFollowingSrcUser} />
                 
                 <div className={`bg-gray-100 h-fit p-6 rounded-md ${hoveredProduct ? "w-md" : "w-sm"} transition-[width] duration-100`}>
