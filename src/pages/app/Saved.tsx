@@ -18,7 +18,7 @@ function Saved() {
 
     // product id to src username (owner)
     const [productToSrc, setProductToSrc] = 
-        useState<{productId: string, srcUsername: string | null}[]>([])
+        useState<{productId: string, srcUsername: string | null, srcUserId: string | null}[]>([])
 
     const onClickRemoveSave = async (productId: string) => {
         if (!userData) return
@@ -61,8 +61,8 @@ function Saved() {
             const product = products[i]
             const srcUserId = product.user_id
             const user = await fetchUser(srcUserId)
-            if (!user) pts.push({productId: product.id, srcUsername: null})
-            else pts.push({productId: product.id, srcUsername: user.username})
+            if (!user) pts.push({productId: product.id, srcUsername: null, srcUserId: null})
+            else pts.push({productId: product.id, srcUsername: user.username, srcUserId: user.userId})
         }
 
         setProductToSrc(pts)
@@ -105,7 +105,7 @@ function Saved() {
                                 <div className={`bg-gray-100 p-8 rounded-md items-center w-xl text-lg h-fit`}>
                                     <div className="text-sm">
                                         you found this on @
-                                        <Link className="hover:underline" to={"/12"}>
+                                        <Link className="hover:underline" to={`/${productToSrc.find(item => item.productId == hoveredProduct.id)?.srcUserId}`}>
                                             {productToSrc.find(item => item.productId == hoveredProduct.id)?.srcUsername}
                                         </Link>
                                     </div>

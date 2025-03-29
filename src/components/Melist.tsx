@@ -121,7 +121,7 @@ function MelistMinimizedView({ data } : { data: FollowedProfile }) {
 
                     {/* buttons */}
                     <div className="flex gap-4">
-                        <Link to="/12" className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">view all</Link>
+                        <Link to={`/${data.userId}`} className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">view all</Link>
                         <div className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold"><HeartIcon className="size-5 stroke-2" /></div>
                     </div>
                 </>
@@ -246,7 +246,7 @@ function MelistSearchView({ data } : { data: SearchResultProfile }) {
 
             {/* buttons */}
             <div className="flex gap-4">
-                <Link to="/12" className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">view all</Link>
+                <Link to={`/${data.userId}`} className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">view all</Link>
                 <div className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold"><HeartIcon className="size-5 stroke-2" /></div>
             </div>
         </div>
