@@ -18,7 +18,7 @@ function Following() {
         const srcUserIds = success.map(item => item.src_user_id)
 
         const { data, error } = await supabase.from("user")
-            .select("id,username,display_name,m_product ( product_name )")
+            .select("id,username,display_name,m_product ( id, product_name )")
             .in("id", srcUserIds)
 
         if (error) {
@@ -45,14 +45,14 @@ function Following() {
             <div className="flex justify-center">
                 <div className="flex flex-col">
                     <div className="font-medium text-3xl mt-16 justify-self-start">Following</div>
-                    <div className="mt-4 flex gap-4">
+                    <div className="mt-4 grid grid-cols-2 gap-4">
                         {profiles.map(item => (
-                            <Melist displayMode="minimized" />
+                            <Melist key={item.userId} displayMode="minimized" followedProfile={item} />
                         ))}
 
                         {/* should organize fetch data s.t. list follower decreases left->right, top->down */}
                         <div className="flex flex-col gap-4">
-                            <Melist displayMode="minimized" />
+                            <Melist displayMode="minimized"  />
                             <Melist displayMode="minimized" />
                             <Melist displayMode="minimized" />
                         </div>

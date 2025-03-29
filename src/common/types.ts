@@ -46,7 +46,7 @@ export type UserData = {
     displayName: string
 }
 
-// only for search result
+// for search result display
 export type SearchResultCondensedProduct = {
     product_name: string
 }
@@ -57,8 +57,9 @@ export type SearchResultProfile = {
     products: SearchResultCondensedProduct[]
 }
 
-// only for followed
+// for followed display
 export type FollowedCondensedProduct = {
+    id: string
     product_name: string
 }
 export type FollowedProfile = {

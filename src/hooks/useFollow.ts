@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { deleteUserFollow, fetchUserFollow, uploadUserFollow } from "../supabase/api/user_user_follow";
 
+// manage user (userId) follow another user (srcUserId)
 export default function useFollow(userId: string | undefined, srcUserId: string | undefined) {
     const [isFollowingSrcUser, setIsFollowingSrcUser] = useState<boolean>(false)
 
