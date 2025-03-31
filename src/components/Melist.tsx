@@ -1,5 +1,5 @@
 import { CheckIcon, ExclamationCircleIcon, HeartIcon, PlusCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { FollowedProfile, MelistData, MelistStyles, ProductData, ProductDetails, SearchResultProfile, SectionData, SectionDetails, UserData } from "../common/types";
+import { FollowedProfile, HomeProfile, MelistData, MelistStyles, ProductData, ProductDetails, SearchResultProfile, SectionData, SectionDetails, UserData } from "../common/types";
 import { SetStateAction, useState } from "react";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { Link, useSearchParams } from "react-router";
@@ -12,6 +12,7 @@ interface MelistProps {
     melistData?: MelistData; // todo: refactor to include user info
     followedProfile?: FollowedProfile;
     searchResultProfile?: SearchResultProfile;
+    discoverProfile?: HomeProfile;
     userData?: UserData | null;
     displayMode: string;
     styles?: MelistStyles;
@@ -34,6 +35,8 @@ function Melist(props : MelistProps) {
         return <MelistMinimizedView data={props.followedProfile} />
     if (props.displayMode == "search" && props.searchResultProfile) 
         return <MelistSearchView data={props.searchResultProfile} />
+    if (props.displayMode == "home" && props.discoverProfile)
+        return <MelistHomeView data={props.discoverProfile} />
 }
 
 function MelistCondensedView() {
@@ -240,6 +243,40 @@ function MelistSearchView({ data } : { data: SearchResultProfile }) {
                     <div key={product.product_name} className="flex">
                         <div className="bg-white size-14 rounded-l-md"></div>
                         <div className="bg-gray-200 w-full rounded-r-md">{product.product_name}</div>
+                    </div>
+                ))}
+            </div>
+
+            {/* buttons */}
+            <div className="flex gap-4">
+                <Link to={`/${data.userId}`} className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">view all</Link>
+                <div className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold"><HeartIcon className="size-5 stroke-2" /></div>
+            </div>
+        </div>
+    )   
+}
+
+function MelistHomeView({ data } : { data: HomeProfile }) {
+    return (
+        <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-md">
+            {/* header */}
+            <div className="flex gap-4">
+                <div className="bg-white rounded-full size-12" />
+                <div>
+                    <div className="font-bold text-xl">{data.displayName}</div>
+                    <div className="text-xs">{data.products.length} products</div>
+                </div>
+            </div>
+
+            {/* products */}
+            <div className="flex flex-col gap-2">
+                {data.products.slice(0,3).map(product => (
+                    <div key={product.product_name} className="flex">
+                        <div className="bg-white size-14 rounded-l-md"></div>
+                        <div className="bg-gray-200 w-full rounded-r-md">
+                            {product.product_name}
+                            {product.tags?.map(tag => <div key={tag.tag_id}>{product.product_name}</div>)}
+                        </div>
                     </div>
                 ))}
             </div>

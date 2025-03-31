@@ -46,7 +46,7 @@ export type UserData = {
     displayName: string
 }
 
-// for search result display
+// search result display
 export type SearchResultCondensedProduct = {
     product_name: string
 }
@@ -57,7 +57,7 @@ export type SearchResultProfile = {
     products: SearchResultCondensedProduct[]
 }
 
-// for followed display
+// followed display
 export type FollowedCondensedProduct = {
     id: string
     product_name: string
@@ -68,6 +68,25 @@ export type FollowedProfile = {
     displayName: string,
     products: FollowedCondensedProduct[]
 }
+
+// home display
+export type HomeTag = {
+    tag_id: string,
+    tag_name: string,
+    product_id: string
+}
+export type HomeCondensedProduct = {
+    id: string
+    product_name: string
+    tags?: HomeTag[]
+}
+export type HomeProfile = {
+    userId: string,
+    username: string,
+    displayName: string,
+    products: HomeCondensedProduct[]
+}
+
 
 // post
 export type PostProduct = {
