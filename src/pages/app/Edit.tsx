@@ -16,18 +16,21 @@ import { updateExistingProduct, uploadProduct } from "../../supabase/api/m_produ
 import { fetchProductTags, uploadProductTags } from "../../supabase/api/m_product_tag"
 import { fetchUserTags, uploadTag } from "../../supabase/api/tags"
 import { fetchSessionuser } from "../../supabase/api/user"
+import ImageInput from "../../components/ImageInput"
+import { fetchProductImageUrl, uploadProductImage } from "../../supabase/storage/storage"
 
 function Edit() {
     const [urlParams, setUrlParams] = useSearchParams()
     const [styles, setStyles] = useState<MelistStyles>({bgColor: "gray-100"})
     const { listData, populateList } = useFetchMelist()
-    const { userData } = useFetchUser() // todo: replace 
+    const { userData } = useFetchUser() 
 
     // add product flow
     const [productName, setProductName] = useState<string>("")
     const [tags, setTags] = useState<TagSelectable[]>([])
     const [reaction, setReaction] = useState<string>("")
     const [productLink, setProductLink] = useState<string>("")
+    const [productImage, setProductImage] = useState<File>()
     const [sectionId, setSectionId] = useState<string>("")
 
     const findUrlProduct = () => {
@@ -45,6 +48,8 @@ function Edit() {
         return productData
     }
     const onClickUpload = async () => {
+        if (!userData) return null
+
         const postProduct: PostProduct = {
             user_id: userData.userId, 
             reaction, 
@@ -65,6 +70,10 @@ function Edit() {
         }))
         const postProductTagsResp = await uploadProductTags(postProductTags)
         if (!postProductTagsResp) return null
+
+        if (productImage != undefined) {
+            await uploadProductImage(productImage, `${postProductResp.id}`)
+        }
 
         return postProductResp.id
     }
@@ -173,7 +182,7 @@ function Edit() {
                                         animate={{ x: 0 }}
                                         exit={{ x: -10 }}
                                     >
-                                        <Step4View setUrlParams={setUrlParams} />
+                                        <Step4View productImage={productImage} setProductImage={setProductImage} setUrlParams={setUrlParams} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -523,15 +532,17 @@ function Step3View({ setReaction, setUrlParams } : Step3ViewProps ) {
 
 interface Step4ViewProps {
     setUrlParams: SetURLSearchParams;
+    productImage: File | undefined;
+    setProductImage: Dispatch<SetStateAction<File | undefined>>
 }
-function Step4View({ setUrlParams } : Step4ViewProps ) {
+function Step4View({ setUrlParams, productImage, setProductImage } : Step4ViewProps ) {
     return (
         <div>
             <div className="">
                 <div className="">
                     <div className="font-semibold text-2xl">Upload your own photo of the product</div>
                     <div className="mt-4 text-sm">this helps us make your list beautiful</div>
-                    <input className="mt-4" type="file" />
+                    <ImageInput image={productImage} setImage={setProductImage} />
                 </div>
             </div>
             <div className="mt-16 flex gap-2">
@@ -551,7 +562,7 @@ function Step4View({ setUrlParams } : Step4ViewProps ) {
                         return prev
                     })}
                 >
-                    I don't have a photo
+                    {productImage ? "next" : "I don't have a photo"}
                 </div>
             </div>
         </div>
@@ -819,6 +830,15 @@ interface SelectedViewProps {
     product: ProductData | null;
 }
 function SelectedView({ setUrlParams, product, isNew } : SelectedViewProps) {
+    const [productImageUrl, setProductImageUrl] = useState<string | null>(null)
+    const getUrl = async () => {
+        if (!product) return 
+        const url = await fetchProductImageUrl(product.id)
+        setProductImageUrl(url)
+    }
+    useEffect(() => {
+        getUrl()
+    },[product])
     return (<>
         {!product && <div>no product found. click on another one</div>}
         {product && (<div>
@@ -830,7 +850,7 @@ function SelectedView({ setUrlParams, product, isNew } : SelectedViewProps) {
             </div>
             <div className="mt-4">
                 <div className="text-2xl font-bold">{product.product_name}</div>
-                <div className="h-30 w-50 bg-white rounded-md mt-4"></div>
+                {productImageUrl != null && <img className="mt-4 w-40 h-40 object-cover rounded-lg" src={productImageUrl} />}
                 <div className="mt-4">{product?.reaction}</div>
             </div>
             <div className="flex gap-2 mt-12">
