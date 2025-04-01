@@ -831,9 +831,9 @@ interface SelectedViewProps {
 }
 function SelectedView({ setUrlParams, product, isNew } : SelectedViewProps) {
     const [productImageUrl, setProductImageUrl] = useState<string | null>(null)
-    const getUrl = async () => {
+    const getUrl = () => {
         if (!product) return 
-        const url = await fetchProductImageUrl(product.id)
+        const url = fetchProductImageUrl(product.id)
         setProductImageUrl(url)
     }
     useEffect(() => {

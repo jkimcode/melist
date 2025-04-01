@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import Melist from "../../components/Melist"
-import { MelistData, ProductDetails } from "../../common/types";
+import { MelistData, ProductData, ProductDetails } from "../../common/types";
 import { ArrowLeftIcon } from "@heroicons/react/16/solid";
 import { ChevronDownIcon, ChevronUpIcon, GlobeAmericasIcon } from "@heroicons/react/24/outline";
 import { supabase } from "../../supabase/client";
 import { useNavigate } from "react-router";
 import useFetchMelist from "../../hooks/useFetchMelist";
+import { fetchProductImageUrl } from "../../supabase/storage/storage";
 
 function MyProfile() {
-    const [clickedProduct, setClickedProduct] = useState<ProductDetails | null>(null);
+    const [clickedProduct, setClickedProduct] = useState<ProductData | null>(null);
     const [dropdown, setDropdown] = useState(false)
     const { listData } = useFetchMelist()
     const navigate = useNavigate()
@@ -38,7 +39,7 @@ function MyProfile() {
                                             <ArrowLeftIcon className="size-4 mr-1" /> back
                                         </div>
                                         <div className="mt-6">
-                                            {clickedProduct.productTitle}
+                                            <SelectedView product={clickedProduct} />
                                         </div>
                                     </>
                                 )}
@@ -75,3 +76,21 @@ function MyProfile() {
 }
 
 export default MyProfile
+
+export const SelectedView = ({ product } : { product: ProductData }) => {
+    return (
+        <>
+            <div className="flex gap-2">
+                {product.tags && product.tags.length > 0 && product.tags.map(item => (
+                    <div key={item.tag_id} className="px-4 py-1 bg-white rounded-full text-sm">{item.tag_name}</div>
+                ))}
+            </div>
+            <div className="mt-4">
+                <div className="text-2xl font-bold">{product.product_name}</div>
+                {fetchProductImageUrl(product.id) != null && 
+                    <img className="mt-4 w-40 h-40 object-cover rounded-lg" src={fetchProductImageUrl(product.id)} />}
+                <div className="mt-4">{product?.reaction}</div>
+            </div>
+        </>
+    )
+}

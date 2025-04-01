@@ -10,8 +10,8 @@ export async function uploadProductImage(file: File, filePath: string) {
     }
 }
 
-export async function fetchProductImageUrl(prductId: string) {
-    const { data } = await supabase.storage.from("productpicture").getPublicUrl(prductId)
+export function fetchProductImageUrl(prductId: string) {
+    const { data } = supabase.storage.from("productpicture").getPublicUrl(prductId)
 
     return data.publicUrl
 }

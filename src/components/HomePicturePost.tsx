@@ -1,22 +1,26 @@
 import { useEffect, useState } from "react"
 import { ProductData } from "../common/types"
 import { fetchProductImageUrl } from "../supabase/storage/storage"
+import { useNavigate } from "react-router"
 
 interface HomePicturePostProps {
     productDetails: ProductData
 }
 function HomePicturePost({ productDetails } : HomePicturePostProps) {
     const [imageUrl, setImageUrl] = useState<string | null>(null)
-    const getImage = async () => {
-        const url = await fetchProductImageUrl(productDetails.id)
+    const navigate = useNavigate()
+    const getImage = () => {
+        const url = fetchProductImageUrl(productDetails.id)
         if (url) setImageUrl(url)
     }
     useEffect(() => {
         getImage()
     },[])
     return (
-        <div>
-            <img className="h-70 w-100 object-fit" src={imageUrl} />
+        <div 
+            className="hover:curosr-pointer" 
+            onClick={() => navigate(`/${productDetails.user_id}?initial=${productDetails.id}`)}>
+            <img className="h-70 w-100 object-fit rounded-t-lg" src={imageUrl} />
             <div className="bg-gray-100 rounded-xs h-10 w-100">
                 {productDetails.product_name}
             </div>

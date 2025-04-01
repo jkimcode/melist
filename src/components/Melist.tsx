@@ -7,7 +7,7 @@ import Product from "./Product";
 import { Reorder } from "framer-motion";
 
 type hoveredProductSetter = React.Dispatch<SetStateAction<ProductData | null>>
-type clickedProductSetter = React.Dispatch<SetStateAction<ProductDetails | null>>;
+type clickedProductSetter = React.Dispatch<SetStateAction<ProductData | null>>;
 interface MelistProps {
     melistData?: MelistData; // todo: refactor to include user info
     followedProfile?: FollowedProfile;
@@ -205,7 +205,7 @@ function MelistMyView({ data, setClicked } : { data: MelistData, setClicked: cli
                         <div className="font-semibold">{section.section_name}</div>
                         <div className="flex flex-col gap-2 mt-2">
                             {section.products.map(product => (
-                                <div key={product.id} className="flex">
+                                <div key={product.id} className="flex" onClick={() => setClicked(product)}>
                                     <div className="bg-white size-14 rounded-l-md"></div>
                                     <div className="bg-gray-200 w-full rounded-r-md">{product.reaction} hi</div>
                                 </div>

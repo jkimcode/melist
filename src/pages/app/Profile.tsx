@@ -2,16 +2,18 @@ import { useEffect, useState } from "react"
 import Melist from "../../components/Melist"
 import { ProductData, ResponseFetchProductUserSave, UserData } from "../../common/types"
 import useFetchMelist from "../../hooks/useFetchMelist";
-import { useParams } from "react-router";
+import { useParams, useSearchParams } from "react-router";
 import useFetchUser from "../../hooks/useFetchUser";
 import { fetchProductUserSaves, uploadProductUserSave } from "../../supabase/api/m_product_user_save";
 import { fetchSessionuser } from "../../supabase/api/user";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import useFollow from "../../hooks/useFollow";
+import { SelectedView } from "./MyProfile";
 
 function Profile() {
     const [hoveredProduct, setHoveredProduct] = useState<ProductData | null>(null);
-    
+    const [urlParams, setUrlParams] = useSearchParams()
+
     // profile user
     let  { userId } = useParams()
     const { listData } = useFetchMelist(userId)
@@ -58,6 +60,16 @@ function Profile() {
         getSessionUserSavedProucts()
     },[])
 
+    useEffect(() => {
+        const initialProductId = urlParams.get("initial")
+        if (!initialProductId || !listData) return 
+        listData.forEach(section => section.products.forEach(product => {
+            if (product.id == initialProductId) {
+                setHoveredProduct(product)
+            }
+        }))
+    },[listData])
+
     return (
         <div className="mx-auto max-w-5xl" onMouseLeave={() => setHoveredProduct(null)}>
             <div className="mt-12 flex justify-center gap-8">
@@ -74,14 +86,7 @@ function Profile() {
                     {!hoveredProduct && <div className="pb-8">hover over a product for details...</div>}
                     {hoveredProduct && (
                         <div>
-                            <div className="flex gap-2">
-                                <div className="px-4 py-1 bg-white rounded-full text-sm">fave</div>
-                            </div>
-                            <div className="mt-4">
-                                <div className="text-2xl font-bold">{hoveredProduct.product_name}</div>
-                                <div className="h-30 w-50 bg-white rounded-md mt-4"></div>
-                                <div className="mt-4">{hoveredProduct.reaction}</div>
-                            </div>
+                            <SelectedView product={hoveredProduct} />
                             <div className="mt-16">
                                 <div 
                                     className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold hover:cursor-pointer"
