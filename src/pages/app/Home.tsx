@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import HomePicturePost from "../../components/HomePicturePost"
+import HomePicturePost, { HomePicturePostLoading } from "../../components/HomePicturePost"
 import HomePost from "../../components/HomePost"
 import { supabase } from "../../supabase/client"
 import { CondensedProfile, HomeTag, ProductData } from "../../common/types"
@@ -9,8 +9,11 @@ import { fetchProductById } from "../../supabase/api/m_product"
 function Home() {
     const [discoverProfiles, setDiscoverProfiles] = useState<CondensedProfile[]>([])
     const [discoverProducts, setDiscoverProducts] = useState<ProductData[]>([])
+    const [isLoadingProfiles, setIsLoadingProfiles] = useState<boolean>(false)
+    const [isLoadingProducts, setIsLoadingProducts] = useState<boolean>(false)
 
     const getDiscoverProfiles = async () => {
+        setIsLoadingProfiles(true)
         const { data, error } = await supabase.from("top_followers").select("*")
         if (error) {
             console.log("error fetch ranked profiles", error)
@@ -56,9 +59,11 @@ function Home() {
         }
 
         setDiscoverProfiles(formattedProfiles)
+        setIsLoadingProfiles(false)
     }
 
     const getDiscoverProducts = async () => {
+        setIsLoadingProducts(true)
         const { data, error } = await supabase.from("top_products").select("*")
         if (error) {
             console.log("error fetch top products", error)
@@ -81,6 +86,7 @@ function Home() {
         }
         
         setDiscoverProducts(discoverProducts)
+        setIsLoadingProducts(false)
     }
 
     useEffect(() => {
@@ -92,13 +98,21 @@ function Home() {
             <div className="font-medium text-3xl mt-16">Discover</div>
             <div className="flex gap-6 mt-6">
                 <div className="flex flex-col gap-6">
-                    {/* <HomePost postType="followUpdate" />
-                    <HomePost postType="recommendedProducts" /> */}
-                    {discoverProfiles.map(profile => (
+                    {isLoadingProfiles && <>
+                        <Melist displayMode="loading" />
+                        <Melist displayMode="loading" />
+                        <Melist displayMode="loading" />
+                    </>}
+                    {!isLoadingProfiles && discoverProfiles.map(profile => (
                         <Melist displayMode="home" condensedProfile={profile}  />
                     ))}
                 </div>
                 <div className="flex flex-col gap-4">
+                    {isLoadingProducts && <>
+                        <HomePicturePostLoading />
+                        <HomePicturePostLoading />
+                        <HomePicturePostLoading />
+                    </>}
                     {discoverProducts.map(product => (
                         <HomePicturePost productDetails={product} />
                     ))}

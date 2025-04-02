@@ -22,7 +22,6 @@ export function EditableSection({section} : {section: SectionData}) {
             <div className="font-semibold mb-2">{section.section_name}</div>
             
             <div className="flex flex-col">
-                {/* todo: switch over to dnd-kit for drag between sections */}
                 {/* <Reorder.Group axis="y" values={products} onReorder={setProducts}>
                     {products.map(productItem => 
                         <Reorder.Item key={productItem.productTitle} value={productItem}>

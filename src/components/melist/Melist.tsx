@@ -17,6 +17,7 @@ interface MelistProps {
     displayMode: string;
     styles?: MelistStyles;
     isFollowing?: boolean;
+    large?: boolean;
     setHoveredProduct?: hoveredProductSetter;
     setClickedProduct?: clickedProductSetter;
     onClickFollow?: () => Promise<void>;
@@ -35,6 +36,8 @@ function Melist(props : MelistProps) {
         return <MelistSearchView data={props.condensedProfile} />
     if (props.displayMode == "home" && props.condensedProfile)
         return <MelistHomeView data={props.condensedProfile} />
+    if (props.displayMode == "loading") 
+        return <MelistLoadingView isLarge={props.large || false} />
 }
 
 function MelistMinimizedView({ data } : { data: CondensedProfile }) {
@@ -166,6 +169,37 @@ function MelistHomeView({ data } : { data: CondensedProfile }) {
             <div className="flex gap-4">
                 <Link to={`/${data.userId}`} className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">view all</Link>
                 <div className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold"><HeartIcon className="size-5 stroke-2" /></div>
+            </div>
+        </div>
+    )   
+}
+
+function MelistLoadingView({ isLarge } : { isLarge: boolean }) {
+    return (
+        <div className={`bg-gray-100 p-6 flex flex-col gap-8 rounded-xl ${isLarge ? "w-md" : "w-sm"} animate-pulse`}>
+            {/* header */}
+            <div className="flex gap-4" >
+                <div className="bg-white rounded-full size-12" />
+                <div className="flex flex-col gap-2">
+                    <div className="rounded-full h-4 w-24 bg-gray-200"></div>
+                    <div className="rounded-full h-2 w-12 bg-gray-200"></div>
+                </div>
+            </div>
+
+            {/* products */}
+            <div className="flex flex-col gap-2">
+                <div className="flex mb-2 bg-white runded-md">
+                    <div className="text-bold"></div>
+                </div>
+                <div className="flex mb-2 bg-white runded-md">
+                    <div className="text-bold"></div>
+                </div>
+            </div>
+
+            {/* buttons */}
+            <div className="flex gap-4">
+                <div className="py-4 w-full rounded-full bg-gray-200"></div>
+                <div className="py-4 w-full rounded-full bg-gray-200"></div>
             </div>
         </div>
     )   
