@@ -1,5 +1,5 @@
 import { CheckIcon, ExclamationCircleIcon, HeartIcon, PencilIcon, PlusCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { HomeProfile, MelistData, MelistStyles, ProductData, ProductDetails, SectionData, SectionDetails, UserData } from "../../common/types";
+import { CondensedProfile, HomeProfile, MelistData, MelistStyles, ProductData, ProductDetails, SectionData, SectionDetails, UserData } from "../../common/types";
 import { SetStateAction, useState } from "react";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { Link, useSearchParams } from "react-router";
@@ -12,7 +12,7 @@ type hoveredProductSetter = React.Dispatch<SetStateAction<ProductData | null>>
 type clickedProductSetter = React.Dispatch<SetStateAction<ProductData | null>>;
 interface MelistProps {
     melistData?: MelistData; // todo: refactor to include user info
-    discoverProfile?: HomeProfile;
+    condensedProfile?: CondensedProfile;
     userData?: UserData | null;
     displayMode: string;
     styles?: MelistStyles;
@@ -25,8 +25,8 @@ interface MelistProps {
 function Melist(props : MelistProps) {
     if (props.displayMode == "profile" && props.setHoveredProduct && props.melistData && props.userData && props.onClickFollow && props.onClickUnfollow && props.isFollowing != undefined) 
         return <MelistProfileView user={props.userData} data={props.melistData} setHovered={props.setHoveredProduct} onClickFollow={props.onClickFollow} onClickUnfollow={props.onClickUnfollow} isFollowing={props.isFollowing} />
-    if (props.displayMode == "my" && props.setClickedProduct && props.melistData) 
-        return <MelistMyView data={props.melistData} setClicked={props.setClickedProduct} />
+    if (props.displayMode == "my" && props.userData && props.setClickedProduct && props.melistData) 
+        return <MelistMyView user={props.userData} data={props.melistData} setClicked={props.setClickedProduct} />
     if (props.displayMode == "edit" && props.styles && props.melistData && props.userData) 
         return <MelistEditView user={props.userData} data={props.melistData} styles={props.styles} />
     if (props.displayMode == "minimized" && props.condensedProfile) 
@@ -47,42 +47,24 @@ function MelistMinimizedView({ data } : { data: CondensedProfile }) {
             onClick={() => setCollapsed(!collapsed)}
         >
             {collapsed && (
-                <div className="flex gap-4">
-                    <div className="bg-white rounded-full size-12" />
-                    <div>
-                        <div className="font-bold text-xl">{data.displayName}</div>
-                        <div className="text-xs">{data.products.length}</div>
-                    </div>
-                </div>
+                <Header displayName={data.displayName} numProducts={data.products.length} />
             )}
             {!collapsed && (
                 <>
                     {/* equivalent to MelistCondensedView */}
-                    <div className="flex gap-4">
-                        <div className="bg-white rounded-full size-12" />
-                        <div>
-                            <div className="font-bold text-xl">{data.displayName}</div>
-                            <div className="text-xs">{data.products.length}</div>
-                        </div>
-                    </div>
+                    <Header displayName={data.displayName} numProducts={data.products.length} />
 
                     {/* products */}
                     <div>
                         {/* featured */}
                         <div className="flex flex-col gap-2">
-                            {data.products.map(product => (
-                                <div key={product.id} className="flex">
-                                    <div className="bg-white size-14 rounded-l-md"></div>
-                                    <div className="bg-gray-200 w-full rounded-r-md">{product.product_name}</div>
-                                </div>
-                            ))}
+                            {data.products.map(product => <Product mode="condensed" condensedProduct={product} />)}
                         </div>
                     </div>
 
                     {/* buttons */}
                     <div className="flex gap-4">
                         <Link to={`/${data.userId}`} className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">view all</Link>
-                        <div className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold"><HeartIcon className="size-5 stroke-2" /></div>
                     </div>
                 </>
             )}
@@ -103,13 +85,7 @@ function MelistProfileView({ user, data, setHovered, onClickFollow, onClickUnfol
     return (
         <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-sm">
             {/* header */}
-            <div className="flex gap-4">
-                <div className="bg-white rounded-full size-12" />
-                <div>
-                    <div className="font-bold text-xl">{user.displayName}</div>
-                    <div className="text-xs">24 products</div>
-                </div>
-            </div>
+            <Header displayName={user.displayName} numProducts={countProducts(data)} />
 
             {/* products */}
             <div>
@@ -129,18 +105,12 @@ function MelistProfileView({ user, data, setHovered, onClickFollow, onClickUnfol
     )   
 }
 
-function MelistMyView({ data, setClicked } : { data: MelistData, setClicked: clickedProductSetter }) {
+function MelistMyView({ user, data, setClicked } : { user: UserData, data: MelistData, setClicked: clickedProductSetter }) {
     // all products with edit button
     return (
         <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-sm">
             {/* header */}
-            <div className="flex gap-4">
-                <div className="bg-white rounded-full size-12" />
-                <div>
-                    <div className="font-bold text-xl">Kylie Jenner</div>
-                    <div className="text-xs">24 products</div>
-                </div>
-            </div>
+            <Header displayName={user.displayName} numProducts={countProducts(data)} />
 
             {/* products */}
             <div>
@@ -162,22 +132,11 @@ function MelistSearchView({ data } : { data: CondensedProfile }) {
     return (
         <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-md">
             {/* header */}
-            <div className="flex gap-4">
-                <div className="bg-white rounded-full size-12" />
-                <div>
-                    <div className="font-bold text-xl">{data.displayName}</div>
-                    <div className="text-xs">{data.products.length} products</div>
-                </div>
-            </div>
+            <Header displayName={data.displayName} numProducts={data.products.length} />
 
             {/* products */}
             <div className="flex flex-col gap-2">
-                {data.products.slice(0,3).map(product => (
-                    <div key={product.product_name} className="flex">
-                        <div className="bg-white size-14 rounded-l-md"></div>
-                        <div className="bg-gray-200 w-full rounded-r-md">{product.product_name}</div>
-                    </div>
-                ))}
+                {data.products.slice(0,3).map(product => <Product mode="condensed" condensedProduct={product} />)}
             </div>
 
             {/* buttons */}
@@ -193,25 +152,11 @@ function MelistHomeView({ data } : { data: CondensedProfile }) {
     return (
         <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-md">
             {/* header */}
-            <div className="flex gap-4">
-                <div className="bg-white rounded-full size-12" />
-                <div>
-                    <div className="font-bold text-xl">{data.displayName}</div>
-                    <div className="text-xs">{data.products.length} products</div>
-                </div>
-            </div>
+            <Header displayName={data.displayName} numProducts={data.products.length} />
 
             {/* products */}
             <div className="flex flex-col gap-2">
-                {data.products.slice(0,3).map(product => (
-                    <div key={product.product_name} className="flex">
-                        <div className="bg-white size-14 rounded-l-md"></div>
-                        <div className="bg-gray-200 w-full rounded-r-md">
-                            {product.product_name}
-                            {product.tags?.map(tag => <div key={tag.tag_id}>{product.product_name}</div>)}
-                        </div>
-                    </div>
-                ))}
+                {data.products.slice(0,3).map(product => <Product mode="preview" condensedProduct={product} />)}
             </div>
 
             {/* buttons */}
@@ -281,6 +226,25 @@ function MelistEditView({ user, data, styles } : { user: UserData, data: MelistD
             </div>
         </div>
     )   
+}
+
+interface HeaderProps {
+    imageUrl?: string 
+    displayName: string 
+    numProducts: number
+}
+function Header(props: HeaderProps) {
+    return (
+        <div className="flex gap-4">
+            {props.imageUrl ? 
+                <img src={props.imageUrl} className="rounded-full size-12 object-fit" /> :
+                <div className="bg-white rounded-full size-12" />}
+            <div>
+                <div className="font-bold text-xl">{props.displayName}</div>
+                <div className="text-xs">{props.numProducts} products</div>
+            </div>
+        </div>
+    )
 }
 
 const countProducts = (melist: MelistData) => {

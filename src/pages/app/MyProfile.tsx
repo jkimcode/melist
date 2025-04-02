@@ -7,11 +7,13 @@ import { supabase } from "../../supabase/client";
 import { useNavigate } from "react-router";
 import useFetchMelist from "../../hooks/useFetchMelist";
 import { fetchProductImageUrl } from "../../supabase/storage/storage";
+import useFetchUser from "../../hooks/useFetchUser";
 
 function MyProfile() {
     const [clickedProduct, setClickedProduct] = useState<ProductData | null>(null);
     const [dropdown, setDropdown] = useState(false)
     const { listData } = useFetchMelist()
+    const { userData } = useFetchUser()
     const navigate = useNavigate()
 
     const logout = async () => {
@@ -25,7 +27,7 @@ function MyProfile() {
                 <div className="flex flex-col">
                     <div className="font-extrabold text-3xl mt-16 justify-self-start">My List</div>
                     <div className="mt-4 flex gap-8">
-                        <Melist melistData={listData ? listData : undefined} displayMode="my" setClickedProduct={setClickedProduct} />
+                        <Melist userData={userData} melistData={listData ? listData : undefined} displayMode="my" setClickedProduct={setClickedProduct} />
                         <div className="flex flex-col">
                             <div className={`bg-gray-100 h-fit p-6 rounded-md items-center ${clickedProduct ? "w-md" : "w-sm"} text-lg transition-[width] duration-100`}>
                                 {!clickedProduct && (
