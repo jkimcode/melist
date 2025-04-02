@@ -1,10 +1,11 @@
-import { CheckIcon, ExclamationCircleIcon, HeartIcon, PlusCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { CheckIcon, ExclamationCircleIcon, HeartIcon, PencilIcon, PlusCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { FollowedProfile, HomeProfile, MelistData, MelistStyles, ProductData, ProductDetails, SearchResultProfile, SectionData, SectionDetails, UserData } from "../common/types";
 import { SetStateAction, useState } from "react";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { Link, useSearchParams } from "react-router";
 import Product from "./Product";
 import { Reorder } from "framer-motion";
+import { fetchProductImageUrl, fetchProfileImageUrl } from "../supabase/storage/storage";
 
 type hoveredProductSetter = React.Dispatch<SetStateAction<ProductData | null>>
 type clickedProductSetter = React.Dispatch<SetStateAction<ProductData | null>>;
@@ -297,11 +298,22 @@ function MelistEditView({ user, data, styles } : { user: UserData, data: MelistD
     return (
         <div className={`bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-sm ${styles?.bgColor}`}>
             {/* header */}
-            <div className="flex gap-4">
-                <div className="bg-white rounded-full size-12" />
-                <div>
-                    <div className="font-bold text-xl">{user.displayName}</div>
-                    <div className="text-xs">24 products</div>
+            <div 
+                className="flex gap-4 hover:cursor-pointer group" 
+                onClick={() =>  setUrlParams(prev => {
+                    prev.set("view", "editprofile")
+                    return prev
+                })}>
+                <img src={fetchProfileImageUrl(user.userId)} className="bg-white rounded-full size-12 object-fit" />
+                <div className="w-full flex justify-between items-center">
+                    <div>
+                        <div className="font-bold text-xl">{user.displayName}</div>
+                        <div className="text-xs">24 products</div>
+                    </div>
+                    <div className="hidden group-hover:block">
+                        <PencilIcon className="size-4 stroke-2" />
+                    </div>
+                    
                 </div>
             </div>
 

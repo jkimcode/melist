@@ -49,8 +49,6 @@ export async function fetchMelistData(userId: string): Promise<MelistData | null
             product_id: tag.m_product_id
         }))
         formattedProducts[i].tags = formattedTags
-
-        console.log(tags)
     }
 
     const res = sections!.map(s => ({

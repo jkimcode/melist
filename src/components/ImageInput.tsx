@@ -2,9 +2,12 @@ import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from "reac
 
 interface ImageInputProps {
     image: File | undefined,
-    setImage:  Dispatch<SetStateAction<File | undefined>>
+    setImage:  Dispatch<SetStateAction<File | undefined>>,
+    initialPreviewUrl?: string | undefined,
+    width?: number,
+    height?: number
 }
-function ImageInput({ image, setImage } : ImageInputProps) {
+function ImageInput({ image, setImage, initialPreviewUrl, width, height } : ImageInputProps) {
     const [imagePreview, setImagePreview] = useState<string>()
 
     useEffect(() => {
@@ -28,9 +31,9 @@ function ImageInput({ image, setImage } : ImageInputProps) {
     }
     return (
         <div>
-            <input type="file" accept=".png, .jpg, .jpeg" onChange={onChangeHandler} />
+            <input type="file" accept=".png, .jpg, .jpeg" className="text-sm font-bold"  onChange={onChangeHandler} />
             {imagePreview && (
-                <img style={{width: 200, height: 200}} className="object-cover rounded-lg" src={imagePreview} />
+                <img style={{width: width || 200, height: height || 200}} className="object-cover rounded-lg" src={imagePreview || initialPreviewUrl} />
             )}
         </div>
     )

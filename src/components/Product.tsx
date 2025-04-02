@@ -33,9 +33,8 @@ function EditMode({ product } : { product: ProductData }) {
 
 function DefaultMode({ product } : { product: ProductData }) {
     return (
-        <div className="flex mb-2">
-            <div className="bg-white size-14 rounded-l-md">{product.product_name}</div>
-            <div className="bg-gray-200 w-full rounded-r-md"></div>
+        <div className="flex mb-2 bg-white runded-md">
+            <div className="text-bold">{product.product_name}</div>
         </div>
     )
 }

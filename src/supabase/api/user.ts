@@ -2,13 +2,6 @@ import { UserData } from "../../common/types"
 import { supabase } from "../client"
 
 export async function fetchSessionuser(): Promise<UserData | null> {
-    const ls = localStorage.getItem("user")
-
-    if (ls) {
-        const parsed: UserData = JSON.parse(ls)
-        return parsed
-    }
-
     // session user
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return null

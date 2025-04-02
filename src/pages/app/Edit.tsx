@@ -6,7 +6,7 @@ import { PlusCircleIcon } from "@heroicons/react/16/solid"
 import Toggle from "../../components/Toggle"
 import { useSearchParams } from "react-router"
 import { SetURLSearchParams } from "react-router"
-import { MelistData, MelistStyles, PostProduct, PostProductTag, ProductData, ResponseTag, TagSelectable } from "../../common/types"
+import { MelistData, MelistStyles, PostProduct, PostProductTag, ProductData, ResponseTag, TagSelectable, UserData } from "../../common/types"
 import useFetchMelist from "../../hooks/useFetchMelist"
 import { supabase } from "../../supabase/client"
 import Spinner from "../../components/icons/spinner"
@@ -17,13 +17,13 @@ import { fetchProductTags, uploadProductTags } from "../../supabase/api/m_produc
 import { fetchUserTags, uploadTag } from "../../supabase/api/tags"
 import { fetchSessionuser } from "../../supabase/api/user"
 import ImageInput from "../../components/ImageInput"
-import { fetchProductImageUrl, uploadProductImage } from "../../supabase/storage/storage"
+import { fetchProductImageUrl, fetchProfileImageUrl, replaceOrUploadProfileImage, uploadProductImage } from "../../supabase/storage/storage"
 
 function Edit() {
     const [urlParams, setUrlParams] = useSearchParams()
     const [styles, setStyles] = useState<MelistStyles>({bgColor: "gray-100"})
     const { listData, populateList } = useFetchMelist()
-    const { userData } = useFetchUser() 
+    const { userData, refetchUser } = useFetchUser() 
 
     // add product flow
     const [productName, setProductName] = useState<string>("")
@@ -273,6 +273,18 @@ function Edit() {
                                             setUrlParams={setUrlParams} 
                                             populateList={populateList}
                                             product={findUrlProduct()} />
+                                    </motion.div>
+                                </AnimatePresence>
+                            )}
+                            {urlParams.get("view") == "editprofile" && (
+                                <AnimatePresence>
+                                    <motion.div 
+                                        transition={{ type: "spring", duration: 0.1, bounce: 0 }}
+                                        initial={{ x: -10 }}
+                                        animate={{ x: 0 }}
+                                        exit={{ x: -10 }}
+                                    >
+                                        <EditProfileView refetchUser={refetchUser} userData={userData} setUrlParams={setUrlParams} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -1040,6 +1052,104 @@ function EditSelectedView({ setUrlParams, populateList, product } : EditSelected
                 >
                     delete
                 </div>
+            </div>
+        </div>
+    )
+}
+
+interface EditProfileViewProps { 
+    setUrlParams: SetURLSearchParams, 
+    userData: UserData | null, 
+    refetchUser: () => Promise<void> 
+}
+function EditProfileView({ setUrlParams, userData, refetchUser } : EditProfileViewProps) {
+    const [image, setImage] = useState<File>()
+    const [initialDisplayName, setInitialDisplayName] = useState<string>("")
+    const [displayName, setDisplayName] = useState<string>("")
+    const [initialProfileImageUrl, setInitialProfileImageUrl] = useState<string>()
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const onClickSaveProfile = async () => {
+        if (!userData) {
+            return 
+        }
+        setIsLoading(true)
+        const { data, error } = await supabase.from("user")
+            .update({ display_name: displayName }).eq("id", userData.userId).select()
+
+        if (error) {
+            console.log("error update user", error)
+            return 
+        }
+
+        // update profile imgage 
+        if (image) {
+            setIsLoading(false)
+            
+            const success = await replaceOrUploadProfileImage(image, `${userData.userId}`)
+            if (!success) {
+                console.log("error update profile image")
+                return 
+            } 
+        } 
+
+        await refetchUser()
+        
+        setIsLoading(false)
+    }
+    useEffect(() => {
+        if (!userData) return 
+        
+        setDisplayName(userData.displayName)
+        setInitialDisplayName(userData.displayName)
+    
+        const url = fetchProfileImageUrl(userData?.userId)
+        if (url) setInitialProfileImageUrl(url)
+    },[])
+    return (
+        <div>
+            <div className="font-semibold">Edit Profile</div>
+            <div className="mt-4 flex flex-col gap-4">
+                <div>
+                    <div className="text-sm">profile image</div>
+                    <ImageInput 
+                        image={image} 
+                        setImage={setImage} 
+                        initialPreviewUrl={initialProfileImageUrl}
+                        width={150}
+                        height={150} />
+                </div>
+                <div>
+                    <div className="text-sm">display name</div>
+                    <input 
+                        value={displayName} 
+                        onChange={(e) => setDisplayName(e.target.value)} 
+                        className="px-4 py-2 text-semibold mt-1 bg-white w-full rounded-md" />
+                </div>
+                <div>
+                    <div className="text-sm">username</div>
+                    <input 
+                        disabled={true} 
+                        className="px-4 py-2 text-semibold mt-1 bg-gray-200 w-full rounded-md" 
+                        placeholder={`@${userData?.username}`} />
+                </div>
+            </div>
+            <div className="flex gap-2 mt-16">
+                <div 
+                    className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
+                    onClick={() => setUrlParams(prev => {
+                        prev.set("view", "")
+                        return prev
+                    })}
+                >
+                    <ArrowLeftIcon className="size-4 stroke-3 mr-1" /> back
+                </div>
+                <button 
+                    className="py-2 w-32 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:enabled:bg-gray-300"
+                    onClick={() => onClickSaveProfile()}
+                >
+                    {isLoading && <Spinner />}
+                    save
+                </button>
             </div>
         </div>
     )

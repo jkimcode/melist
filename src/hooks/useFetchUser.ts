@@ -16,6 +16,6 @@ export default function useFetchUser(userId?: string) {
         tryFetch()
     },[])
 
-    return { userData: user }
+    return { userData: user, refetchUser: tryFetch }
 }
 
