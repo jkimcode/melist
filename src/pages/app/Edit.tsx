@@ -1,5 +1,5 @@
 import { ArrowLeftIcon, ArrowRightIcon, ClockIcon, PencilSquareIcon } from "@heroicons/react/24/outline"
-import Melist from "../../components/Melist"
+import Melist from "../../components/melist/Melist"
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { PlusCircleIcon } from "@heroicons/react/16/solid"

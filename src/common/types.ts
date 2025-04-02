@@ -46,27 +46,22 @@ export type UserData = {
     displayName: string
 }
 
-// search result display
-export type SearchResultCondensedProduct = {
-    product_name: string
-}
-export type SearchResultProfile = {
-    userId: string,
-    username: string,
-    displayName: string,
-    products: SearchResultCondensedProduct[]
-}
 
-// followed display
-export type FollowedCondensedProduct = {
+export type Tag = {
+    tag_id: string,
+    tag_name: string,
+    product_id: string
+}
+export type CondensedProduct = {
     id: string
     product_name: string
+    tags?: Tag[]
 }
-export type FollowedProfile = {
+export type CondensedProfile = {
     userId: string,
     username: string,
     displayName: string,
-    products: FollowedCondensedProduct[]
+    products: CondensedProduct[]
 }
 
 // home display

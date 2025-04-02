@@ -2,12 +2,12 @@ import { useEffect, useState } from "react"
 import HomePicturePost from "../../components/HomePicturePost"
 import HomePost from "../../components/HomePost"
 import { supabase } from "../../supabase/client"
-import { HomeProfile, HomeTag, ProductData } from "../../common/types"
-import Melist from "../../components/Melist"
+import { CondensedProfile, HomeTag, ProductData } from "../../common/types"
+import Melist from "../../components/melist/Melist"
 import { fetchProductById } from "../../supabase/api/m_product"
 
 function Home() {
-    const [discoverProfiles, setDiscoverProfiles] = useState<HomeProfile[]>([])
+    const [discoverProfiles, setDiscoverProfiles] = useState<CondensedProfile[]>([])
     const [discoverProducts, setDiscoverProducts] = useState<ProductData[]>([])
 
     const getDiscoverProfiles = async () => {
@@ -27,7 +27,7 @@ function Home() {
             return 
         }
 
-        const formattedProfiles: HomeProfile[] = profiles.map(profile => ({
+        const formattedProfiles: CondensedProfile[] = profiles.map(profile => ({
             userId: profile.id,
             username: profile.username,
             displayName: profile.display_name,
@@ -95,7 +95,7 @@ function Home() {
                     {/* <HomePost postType="followUpdate" />
                     <HomePost postType="recommendedProducts" /> */}
                     {discoverProfiles.map(profile => (
-                        <Melist displayMode="home" discoverProfile={profile}  />
+                        <Melist displayMode="home" condensedProfile={profile}  />
                     ))}
                 </div>
                 <div className="flex flex-col gap-4">

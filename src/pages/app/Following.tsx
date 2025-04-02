@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react"
-import Melist from "../../components/Melist"
+import Melist from "../../components/melist/Melist"
 import useFetchUser from "../../hooks/useFetchUser"
 import { fetchUserFollow } from "../../supabase/api/user_user_follow"
 import { supabase } from "../../supabase/client"
-import { FollowedProfile } from "../../common/types"
+import { CondensedProfile } from "../../common/types"
 
 function Following() {
     const { userData } = useFetchUser()
-    const [profiles, setProfiles] = useState<FollowedProfile[]>([]) 
+    const [profiles, setProfiles] = useState<CondensedProfile[]>([]) 
     const getFollowing = async () => {
         if (!userData) return 
 
@@ -27,7 +27,7 @@ function Following() {
         }
 
         // format
-        const formatted: FollowedProfile[] = data.map(item => ({
+        const formatted: CondensedProfile[] = data.map(item => ({
             userId: item.id,
             displayName: item.display_name,
             username: item.username,
@@ -47,19 +47,8 @@ function Following() {
                     <div className="font-medium text-3xl mt-16 justify-self-start">Following</div>
                     <div className="mt-4 grid grid-cols-2 gap-4">
                         {profiles.map(item => (
-                            <Melist key={item.userId} displayMode="minimized" followedProfile={item} />
+                            <Melist key={item.userId} displayMode="minimized" condensedProfile={item} />
                         ))}
-
-                        {/* should organize fetch data s.t. list follower decreases left->right, top->down */}
-                        <div className="flex flex-col gap-4">
-                            <Melist displayMode="minimized"  />
-                            <Melist displayMode="minimized" />
-                            <Melist displayMode="minimized" />
-                        </div>
-                        <div className="flex flex-col gap-4">
-                            <Melist displayMode="minimized" />
-                            <Melist displayMode="minimized" />
-                        </div>
                     </div>
                 </div>
             </div>

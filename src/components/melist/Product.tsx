@@ -1,6 +1,6 @@
 import { SetStateAction } from "react";
 import { useSearchParams } from "react-router"
-import { ProductData, ProductDetails } from "../common/types";
+import { ProductData, ProductDetails } from "../../common/types";
 
 type hoveredProductSetter = React.Dispatch<SetStateAction<ProductData | null>>;
 interface ProductProps {
@@ -16,6 +16,8 @@ export default function Product({ product, mode, onHover } : ProductProps) {
     if (mode == "standalone" && onHover) 
         return <HoverMode product={product} onHover={onHover} />
 }
+
+// function CondensedMode()
 
 function EditMode({ product } : { product: ProductData }) {
     const [urlParams, setUrlParams] = useSearchParams()

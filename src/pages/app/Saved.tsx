@@ -1,5 +1,5 @@
 import { Link } from "react-router"
-import Product from "../../components/Product"
+import Product from "../../components/melist/Product"
 import { useEffect, useState } from "react"
 import { ProductData, ProductDetails } from "../../common/types"
 import { motion } from "framer-motion"

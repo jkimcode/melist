@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Melist from "../../components/Melist"
+import Melist from "../../components/melist/Melist"
 import { MelistData, ProductData, ProductDetails } from "../../common/types";
 import { ArrowLeftIcon } from "@heroicons/react/16/solid";
 import { ChevronDownIcon, ChevronUpIcon, GlobeAmericasIcon } from "@heroicons/react/24/outline";

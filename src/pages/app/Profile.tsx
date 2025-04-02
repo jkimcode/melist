@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import Melist from "../../components/Melist"
+import Melist from "../../components/melist/Melist"
 import { ProductData, ResponseFetchProductUserSave, UserData } from "../../common/types"
 import useFetchMelist from "../../hooks/useFetchMelist";
 import { useParams, useSearchParams } from "react-router";
