@@ -110,7 +110,10 @@ function MelistMyView({ user, data, setClicked } : { user: UserData, data: Melis
     return (
         <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-sm">
             {/* header */}
-            <Header displayName={user.displayName} numProducts={countProducts(data)} />
+            <Header 
+                imageUrl={fetchProfileImageUrl(user.userId)} 
+                displayName={user.displayName} 
+                numProducts={countProducts(data)} />
 
             {/* products */}
             <div>
@@ -181,7 +184,7 @@ function MelistEditView({ user, data, styles } : { user: UserData, data: MelistD
                     prev.set("view", "editprofile")
                     return prev
                 })}>
-                <img src={fetchProfileImageUrl(user.userId)} className="bg-white rounded-full size-12 object-fit" />
+                <img src={`${fetchProfileImageUrl(user.userId)}?lastmod=${Date.now()}`} className="bg-white rounded-full size-12 object-fit" />
                 <div className="w-full flex justify-between items-center">
                     <div>
                         <div className="font-bold text-xl">{user.displayName}</div>
@@ -237,7 +240,7 @@ function Header(props: HeaderProps) {
     return (
         <div className="flex gap-4">
             {props.imageUrl ? 
-                <img src={props.imageUrl} className="rounded-full size-12 object-fit" /> :
+                <img src={`${props.imageUrl}?lastmod=${Date.now()}`} className="rounded-full size-12 object-fit" /> :
                 <div className="bg-white rounded-full size-12" />}
             <div>
                 <div className="font-bold text-xl">{props.displayName}</div>

@@ -46,7 +46,7 @@ function MyProfile() {
                                     </>
                                 )}
                             </div>
-                            {!clickedProduct && (
+                            {/* {!clickedProduct && (
                                 <div className={`bg-gray-100 h-fit p-6 rounded-md w-sm  text-lg mt-4`}>
                                     <div className="text-xl">stats</div>
                                     <div className="text-xl flex flex-col gap-2 mt-4">
@@ -54,7 +54,7 @@ function MyProfile() {
                                         <div><span className="font-bold">17k</span> followers</div>
                                     </div>
                                 </div>
-                            )}
+                            )} */}
                             {!clickedProduct && (
                                 <div className={`bg-gray-100 h-fit p-6 rounded-md w-sm  text-lg mt-4`}>
                                     <div className=" flex items-center" onClick={() => setDropdown(!dropdown)}>

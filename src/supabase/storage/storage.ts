@@ -1,7 +1,9 @@
 import { supabase } from "../client";
 
 export async function uploadProductImage(file: File, filePath: string) {
-    const { data, error } = await supabase.storage.from("productpicture").upload(filePath, file)
+    const { data, error } = await supabase.storage.from("productpicture").upload(filePath, file, {
+        cacheControl: "30"
+    })
     if (error) {
         console.log("error upload file", error)
         return null
@@ -16,8 +18,10 @@ export function fetchProductImageUrl(prductId: string) {
 }
 
 export async function replaceOrUploadProfileImage(file: File, filePath: string) {
+    // todo: convert to lower res before save
     const { data, error } = await supabase.storage.from("profilepicture").upload(filePath, file, {
         upsert: true,
+        cacheControl: "30"
     })
     if (error) {
         console.log("error upsert profile picture", error)
