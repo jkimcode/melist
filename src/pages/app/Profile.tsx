@@ -9,15 +9,17 @@ import { fetchSessionuser } from "../../supabase/api/user";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import useFollow from "../../hooks/useFollow";
 import { SelectedView } from "./MyProfile";
+import { supabase } from "../../supabase/client";
 
 function Profile() {
     const [hoveredProduct, setHoveredProduct] = useState<ProductData | null>(null);
     const [urlParams, setUrlParams] = useSearchParams()
 
     // profile user
-    let  { userId } = useParams()
-    const { listData, isFetching } = useFetchMelist(userId)
-    const { userData } = useFetchUser(userId)
+    let  { identity } = useParams()
+    const [userId, setUserId] = useState<string>()
+    const { listData, isFetching } = useFetchMelist(userId, false)
+    const { userData } = useFetchUser(userId, false)
 
     // session user
     const [sessionUser, setSessionUser] = useState<UserData | null>(null)
@@ -42,6 +44,19 @@ function Profile() {
         })
     }
 
+    const getUserFromUsername = async () => {
+        if (!identity) return
+        const { data, error } = await supabase.from("user").select("id").eq("username", identity)
+        
+        if (error) {
+            console.log("error fetch id from username", error)
+            return 
+        }
+
+        console.log(data)
+        setUserId(data[0].id)
+    }
+
     const getSessionUserSavedProucts = async () => {
         if (!userId) return
 
@@ -57,8 +72,17 @@ function Profile() {
     }
 
     useEffect(() => {
+        // determine if provided string is username or userId
+        if (urlParams.get("is_uuid") && identity) {
+            console.log("is uuid")
+            setUserId(identity)
+        } else {
+            console.log("is username")
+            getUserFromUsername()
+        }
+        
         getSessionUserSavedProucts()
-    },[])
+    },[userId])
 
     useEffect(() => {
         const initialProductId = urlParams.get("initial")
@@ -73,8 +97,8 @@ function Profile() {
     return (
         <div className="mx-auto max-w-5xl" onMouseLeave={() => setHoveredProduct(null)}>
             <div className="mt-12 flex justify-center gap-8 items-start">
-                {isFetching && <Melist displayMode="loading" large={false} />}
-                {!isFetching && (
+                {(isFetching || !userId) && <Melist displayMode="loading" large={false} />}
+                {(!isFetching && userId) && (
                     <Melist 
                         userData={userData} 
                         melistData={listData} 

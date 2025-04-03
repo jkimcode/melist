@@ -19,7 +19,7 @@ function HomePicturePost({ productDetails } : HomePicturePostProps) {
     return (
         <div 
             className="hover:curosr-pointer" 
-            onClick={() => navigate(`/${productDetails.user_id}?initial=${productDetails.id}`)}>
+            onClick={() => navigate(`/${productDetails.user_id}?initial=${productDetails.id}&is_uuid=true`)}>
             <img className="h-70 w-100 object-fit rounded-t-lg" src={imageUrl || undefined} />
             <div className="bg-gray-100 rounded-xs h-10 w-100">
                 {productDetails.product_name}
