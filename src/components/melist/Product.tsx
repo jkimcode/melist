@@ -1,6 +1,6 @@
 import { SetStateAction } from "react";
 import { useSearchParams } from "react-router"
-import { CondensedProduct, ProductData, ProductDetails } from "../../common/types";
+import { CondensedProduct, MelistStyles, ProductData, ProductDetails } from "../../common/types";
 
 type hoveredProductSetter = React.Dispatch<SetStateAction<ProductData | null>>;
 type clickedProductSetter = React.Dispatch<SetStateAction<ProductData | null>>
@@ -8,12 +8,13 @@ interface ProductProps {
     product?: ProductData;
     condensedProduct?: CondensedProduct;
     mode?: string;
+    styles?: MelistStyles;
     onHover?: hoveredProductSetter;
     onClick?: clickedProductSetter
 }
-export default function Product({ product, condensedProduct, mode, onHover, onClick } : ProductProps) {
+export default function Product({ product, condensedProduct, mode, onHover, onClick, styles } : ProductProps) {
     if (!mode && product) return <DefaultMode product={product} />
-    if (mode == "edit" && product) return <EditMode product={product} />
+    if (mode == "edit" && product && styles) return <EditMode product={product} styles={styles} />
     if (mode == "condensed" && condensedProduct) return <CondensedMode condensedProduct={condensedProduct} />
     if (mode == "preview" && condensedProduct) return <PreviewMode product={condensedProduct} />
     if (mode == "click" && product && onClick) return <ClickMode product={product} onClick={onClick} />
@@ -45,10 +46,10 @@ function PreviewMode({ product } : { product: CondensedProduct }) {
     )
 }
 
-function EditMode({ product } : { product: ProductData }) {
+function EditMode({ product, styles } : { product: ProductData, styles: MelistStyles }) {
     const [urlParams, setUrlParams] = useSearchParams()
     return (
-        <div className="p-2 h-16 rounded-sm flex flex-col gap-1 bg-gray-200 mb-2" 
+        <div className={`p-2 h-16 rounded-sm flex flex-col gap-1 bg-white mb-2 ${styles.outlineColor} ${styles.productBgColor}`}
             onClick={() => setUrlParams(prev => {
                 prev.set("view", "selected")
                 prev.set("productId", product.id)
@@ -56,7 +57,7 @@ function EditMode({ product } : { product: ProductData }) {
         })}>
             <div className="flex gap-1">
                 {product.tags?.map(tag => 
-                    <div className="px-2 py-0.5 rounded-full bg-gray-100 text-xs font-medium">{tag.tag_name}
+                    <div className={`px-2 py-0.5 rounded-full bg-gray-100 text-xs font-medium ${styles.tagColor}`}>{tag.tag_name}
                 </div>)}
             </div>
             <div className="font-bold">{product.product_name}</div>

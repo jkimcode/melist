@@ -92,7 +92,7 @@ function MelistProfileView({ user, data, setHovered, onClickFollow, onClickUnfol
 
             {/* products */}
             <div>
-                {data.map(section => <Section mode="hover" setHovered={setHovered} section={section} />)}
+                {data.map(section => section.products.length > 0 && <Section mode="hover" setHovered={setHovered} section={section} />)}
             </div>
 
             {/* buttons */}
@@ -121,7 +121,7 @@ function MelistMyView({ user, data, setClicked } : { user: UserData, data: Melis
             {/* products */}
             <div>
                 {/* more products */}
-                {data.map(section => <Section mode="click" setClicked={setClicked} key={section.section_id} section={section} />)}
+                {data.map(section => section.products.length > 0 && <Section mode="click" setClicked={setClicked} key={section.section_id} section={section} />)}
             </div>
 
             {/* buttons */}
@@ -155,7 +155,7 @@ function MelistSearchView({ data } : { data: CondensedProfile }) {
 
 function MelistHomeView({ data } : { data: CondensedProfile }) {
     return (
-        <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-md">
+        <div className="bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-sm">
             {/* header */}
             <Header displayName={data.displayName} numProducts={data.products.length} />
 
@@ -208,7 +208,7 @@ function MelistEditView({ user, data, styles } : { user: UserData, data: MelistD
     const [urlParams, setUrlParams] = useSearchParams()
   
     return (
-        <div className={`bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-sm ${styles?.bgColor}`}>
+        <div className={`bg-gray-100 p-6 flex flex-col gap-8 rounded-xl w-sm ${styles?.bgColor} transition-colors duration-100`}>
             {/* header */}
             <div 
                 className="flex gap-4 hover:cursor-pointer group" 
@@ -230,7 +230,7 @@ function MelistEditView({ user, data, styles } : { user: UserData, data: MelistD
 
             {/* products */}
             <div>
-                {data.map(section => (<EditableSection key={section.section_name} section={section} />))}
+                {data.map(section => (<EditableSection key={section.section_name} section={section} styles={styles} />))}
                 
                 <div 
                     className="outline-dotted py-1 px-2 text-xs mt-2 flex items-center hover:bg-gray-200"
@@ -257,7 +257,9 @@ function MelistEditView({ user, data, styles } : { user: UserData, data: MelistD
 
             {/* buttons */}
             <div className="flex gap-4">
-                <div className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold"><HeartIcon className="size-5 stroke-2" /></div>
+                <div className={`py-4 w-full bg-gray-200 flex justify-center items-center font-bold ${styles.btnColor}`}>
+                    <HeartIcon className="size-5 stroke-2" />
+                </div>
             </div>
         </div>
     )   

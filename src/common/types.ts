@@ -9,7 +9,12 @@ export interface ProductDetails {
     productDesc?: string;
 }
 export interface MelistStyles {
+    name: string;
     bgColor: string;
+    productBgColor: string;
+    btnColor: string;
+    outlineColor: string;
+    tagColor: string;
 }
 
 export type TagSelectable = {
@@ -43,7 +48,8 @@ export type MelistData = SectionData[]
 export type UserData = {
     userId: string,
     username: string,
-    displayName: string
+    displayName: string,
+    colorTheme?: string
 }
 
 

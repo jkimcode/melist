@@ -18,12 +18,13 @@ import { fetchUserTags, uploadTag } from "../../supabase/api/tags"
 import { fetchSessionuser } from "../../supabase/api/user"
 import ImageInput from "../../components/ImageInput"
 import { fetchProductImageUrl, fetchProfileImageUrl, replaceOrUploadProfileImage, uploadProductImage } from "../../supabase/storage/storage"
+import { melistStyles } from "../../components/melist/melistStyles"
 
 function Edit() {
     const [urlParams, setUrlParams] = useSearchParams()
-    const [styles, setStyles] = useState<MelistStyles>({bgColor: "gray-100"})
-    const { listData, populateList, isFetching } = useFetchMelist()
-    const { userData, refetchUser } = useFetchUser() 
+    const { listData, populateList, isFetching } = useFetchMelist(undefined, true)
+    const { userData, refetchUser } = useFetchUser(undefined, true)
+    const [styles, setStyles] = useState<MelistStyles>(melistStyles[0]) 
 
     // add product flow
     const [productName, setProductName] = useState<string>("")
@@ -77,6 +78,14 @@ function Edit() {
 
         return postProductResp.id
     }
+    useEffect(() => {
+        if (!userData) return
+        if (userData.colorTheme) {
+            const userStyle = melistStyles.find(item => item.name == userData.colorTheme)
+            if (userStyle)
+                setStyles(userStyle)
+        }
+    },[userData])
     return (
         <div className="mx-auto max-w-5xl p-4">
             <div className="flex justify-center">
@@ -244,7 +253,7 @@ function Edit() {
                                         animate={{ x: 0 }}
                                         exit={{ x: -10 }}
                                     >
-                                        <CustomizeView setUrlParams={setUrlParams} setStyles={setStyles} />
+                                        <CustomizeView setUrlParams={setUrlParams} setStyles={setStyles} userId={userData?.userId} />
                                     </motion.div>
                                 </AnimatePresence>
                             )}
@@ -801,20 +810,33 @@ function AddSectionView({ populateList, setUrlParams } : AddSectionViewProps) {
 interface CustomizeViewProps {
     setUrlParams: SetURLSearchParams;
     setStyles: React.Dispatch<SetStateAction<MelistStyles>>;
+    userId: string | undefined;
 }
-function CustomizeView({ setUrlParams, setStyles } : CustomizeViewProps) {
+function CustomizeView({ setUrlParams, setStyles, userId } : CustomizeViewProps) {
+    const [selectedColor, setSelectedColor] = useState<string>("")
+    const [isLoading, setIsLoading] = useState<boolean>(false)
     const updateColor = (selectedColor : string) => {
-        console.log("updating color")
-        setStyles({bgColor: selectedColor})
+        setSelectedColor(selectedColor)
+        const selectedStyle = melistStyles.find(item => item.name == selectedColor)
+        if (selectedStyle)
+            setStyles(selectedStyle)
+    }
+    const onClickSave = async () => {
+        if (!userId) return 
+
+        setIsLoading(true)
+        await supabase.from("user").update({ user_color_theme: selectedColor }).eq("id", userId)
+        setIsLoading(false)
     }
     return (
         <div>
             <div className="font-semibold">Choose background</div>
             <div className="flex gap-2 mt-2">
-                <div className="size-10 rounded-full bg-blue-200 hover:bg-blue-300" onClick={() => updateColor("bg-sky-200")} />
-                <div className="size-10 rounded-full bg-yellow-200 hover:bg-yellow-300" onClick={() => updateColor("bg-yellow-200")} />
-                <div className="size-10 rounded-full bg-green-200 hover:bg-green-300" onClick={() => updateColor("bg-green-200")} />
-                <div className="size-10 rounded-full bg-purple-200 hover:bg-purple-300" onClick={() => updateColor("bg-purple-200")} />
+                <div className="size-10 rounded-full bg-gray-200 hover:bg-gray-300" onClick={() => updateColor("grey")} />
+                <div className="size-10 rounded-full bg-blue-200 hover:bg-blue-300" onClick={() => updateColor("blue")} />
+                <div className="size-10 rounded-full bg-yellow-200 hover:bg-yellow-300" onClick={() => updateColor("yellow")} />
+                <div className="size-10 rounded-full bg-green-200 hover:bg-green-300" onClick={() => updateColor("green")} />
+                <div className="size-10 rounded-full bg-purple-200 hover:bg-purple-300" onClick={() => updateColor("purple")} />
             </div>
             <div className="flex gap-2">
                 <div 
@@ -828,8 +850,9 @@ function CustomizeView({ setUrlParams, setStyles } : CustomizeViewProps) {
                 </div>
                 <div 
                     className="py-2 px-6 rounded-md mt-12 bg-gray-200 flex justify-center items-center font-medium hover:bg-gray-300"
-                    onClick={() => {}}
+                    onClick={() => onClickSave()}
                 >
+                    {isLoading && <Spinner />}
                     save changes
                 </div>
             </div>

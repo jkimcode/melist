@@ -1,5 +1,5 @@
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
-import { ProductData, SectionData } from "../../common/types";
+import { MelistStyles, ProductData, SectionData } from "../../common/types";
 import Product from "./Product";
 import { SetStateAction } from "react";
 
@@ -29,7 +29,7 @@ export function Section({section, mode, setHovered, setClicked} : SectionProps) 
     )
 }
 
-export function EditableSection({section} : {section: SectionData}) {
+export function EditableSection({section, styles} : {section: SectionData, styles: MelistStyles}) {
     return (
         <div className="mt-6 first:mt-0">
             <div className="font-semibold mb-2">{section.section_name}</div>
@@ -43,7 +43,7 @@ export function EditableSection({section} : {section: SectionData}) {
                     )}
                 </Reorder.Group> */}
                 {section.products.map(productItem => (
-                    <Product key={productItem.id} product={productItem} mode="edit" />
+                    <Product key={productItem.id} product={productItem} mode="edit" styles={styles} />
                 ))}
             </div>
             {section.section_name == "" && (

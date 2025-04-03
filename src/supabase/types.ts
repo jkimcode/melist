@@ -52,6 +52,35 @@ export type Database = {
         }
         Relationships: []
       }
+      home_new_product_update: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_new_product_update_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "m_product"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       m_product: {
         Row: {
           created_at: string
@@ -234,16 +263,19 @@ export type Database = {
         Row: {
           display_name: string
           id: string
+          user_color_theme: string | null
           username: string
         }
         Insert: {
           display_name: string
           id: string
+          user_color_theme?: string | null
           username: string
         }
         Update: {
           display_name?: string
           id?: string
+          user_color_theme?: string | null
           username?: string
         }
         Relationships: []
@@ -267,26 +299,32 @@ export type Database = {
           src_user_id?: string
           user_id?: string
         }
+        Relationships: []
+      }
+    }
+    Views: {
+      top_followers: {
+        Row: {
+          follower_count: number | null
+          src_user_id: string | null
+        }
+        Relationships: []
+      }
+      top_products: {
+        Row: {
+          m_product_id: string | null
+          saved_count: number | null
+        }
         Relationships: [
           {
-            foreignKeyName: "user_user_follow_src_user_id_fkey"
-            columns: ["src_user_id"]
+            foreignKeyName: "m_product_user_save_m_product_id_fkey"
+            columns: ["m_product_id"]
             isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_user_follow_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user"
+            referencedRelation: "m_product"
             referencedColumns: ["id"]
           },
         ]
       }
-    }
-    Views: {
-      [_ in never]: never
     }
     Functions: {
       [_ in never]: never

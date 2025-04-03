@@ -15,8 +15,11 @@ export async function fetchSessionuser(): Promise<UserData | null> {
     const formattedUser : UserData = {
         userId: profile.id,
         username: profile.username,
-        displayName: profile.display_name
+        displayName: profile.display_name,
     }
+
+    if (profile.user_color_theme) 
+        formattedUser.colorTheme = profile.user_color_theme
 
     localStorage.setItem("user", JSON.stringify(formattedUser))
 
@@ -34,6 +37,9 @@ export async function fetchUser(userId: string) {
         username: profile.username,
         displayName: profile.display_name
     }
+
+    if (profile.user_color_theme) 
+        formattedUser.colorTheme = profile.user_color_theme
 
     return formattedUser
 }
