@@ -1,16 +1,25 @@
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
-import { SectionData } from "../../common/types";
+import { ProductData, SectionData } from "../../common/types";
 import Product from "./Product";
+import { SetStateAction } from "react";
 
-export function Section({section} : {section: SectionData}) {
+interface SectionProps {
+    section: SectionData
+    mode?: string
+    setHovered?: React.Dispatch<SetStateAction<ProductData | null>>
+}
+export function Section({section, mode, setHovered} : SectionProps) {
     return (
         <div className="mt-6 first:mt-0">
             <div className="font-semibold mb-2">{section.section_name}</div>
             
             <div className="flex flex-col">
-                {section.products.map(productItem => (
-                    <Product key={productItem.id} product={productItem} />
-                ))}
+                {section.products.map(productItem => {
+                    if (mode == "hover") {
+                        return <Product key={productItem.id} product={productItem} mode="hover" onHover={setHovered} />
+                    }
+                    return <Product key={productItem.id} product={productItem} />
+                })}
             </div>
         </div>
     )

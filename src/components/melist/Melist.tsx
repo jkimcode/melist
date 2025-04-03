@@ -92,7 +92,7 @@ function MelistProfileView({ user, data, setHovered, onClickFollow, onClickUnfol
 
             {/* products */}
             <div>
-                {data.map(section => <Section section={section} />)}
+                {data.map(section => <Section mode="hover" setHovered={setHovered} section={section} />)}
             </div>
 
             {/* buttons */}
@@ -121,7 +121,7 @@ function MelistMyView({ user, data, setClicked } : { user: UserData, data: Melis
             {/* products */}
             <div>
                 {/* more products */}
-                {data.map(section => <Section section={section} />)}
+                {data.map(section => <Section key={section.section_id} section={section} />)}
             </div>
 
             {/* buttons */}
@@ -148,7 +148,6 @@ function MelistSearchView({ data } : { data: CondensedProfile }) {
             {/* buttons */}
             <div className="flex gap-4">
                 <Link to={`/${data.userId}`} className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">view all</Link>
-                <div className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold"><HeartIcon className="size-5 stroke-2" /></div>
             </div>
         </div>
     )   
@@ -162,13 +161,12 @@ function MelistHomeView({ data } : { data: CondensedProfile }) {
 
             {/* products */}
             <div className="flex flex-col gap-2">
-                {data.products.slice(0,3).map(product => <Product mode="preview" condensedProduct={product} />)}
+                {data.products.slice(0,3).map(product => <Product key={product.id} mode="preview" condensedProduct={product} />)}
             </div>
 
             {/* buttons */}
             <div className="flex gap-4">
                 <Link to={`/${data.userId}`} className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">view all</Link>
-                <div className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold"><HeartIcon className="size-5 stroke-2" /></div>
             </div>
         </div>
     )   

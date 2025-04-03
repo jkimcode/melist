@@ -72,7 +72,7 @@ function Profile() {
 
     return (
         <div className="mx-auto max-w-5xl" onMouseLeave={() => setHoveredProduct(null)}>
-            <div className="mt-12 flex justify-center gap-8">
+            <div className="mt-12 flex justify-center gap-8 items-start">
                 {isFetching && <Melist displayMode="loading" large={false} />}
                 {!isFetching && (
                     <Melist 

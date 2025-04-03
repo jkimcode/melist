@@ -16,7 +16,7 @@ export default function Product({ product, condensedProduct, mode, onHover } : P
     if (mode == "preview" && condensedProduct) return <PreviewMode product={condensedProduct} />
 
     // used in Saved page (not used inside Melist)
-    if (mode == "standalone" && product && onHover) 
+    if ((mode == "standalone" || mode == "hover") && product && onHover) 
         return <HoverMode product={product} onHover={onHover} />
 }
 

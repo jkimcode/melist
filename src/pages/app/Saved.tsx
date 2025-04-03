@@ -79,6 +79,7 @@ function Saved() {
                     <div className="font-medium text-3xl mt-16 justify-self-start">Saved Products</div>
                     <div className="mt-4 flex gap-8">
                         <div className="flex flex-col w-sm p-6 bg-gray-100 rounded-lg h-fit">
+                            {savedProducts.length == 0 && "no saved products"}
                             {savedProducts.map(item => 
                                 <Product 
                                     key={item.id} 

@@ -8,9 +8,11 @@ import { CondensedProfile } from "../../common/types"
 function Following() {
     const { userData } = useFetchUser()
     const [profiles, setProfiles] = useState<CondensedProfile[]>([]) 
+    const [isLoading, setIsLoading] = useState<boolean>(false)
     const getFollowing = async () => {
         if (!userData) return 
 
+        setIsLoading(true)
         const success = await fetchUserFollow(userData.userId)
         if (!success) return 
 
@@ -35,6 +37,7 @@ function Following() {
         }))
 
         setProfiles(formatted)
+        setIsLoading(false)
     }
     useEffect(() => {
         getFollowing()
@@ -44,8 +47,11 @@ function Following() {
         <div className="mx-auto max-w-5xl p-4">
             <div className="flex justify-center">
                 <div className="flex flex-col">
-                    <div className="font-medium text-3xl mt-16 justify-self-start">Following</div>
+                    <div className="font-medium text-3xl mt-16">Following</div>
                     <div className="mt-4 grid grid-cols-2 gap-4">
+                        {isLoading && <>
+                            <Melist displayMode="loading" large={true} />
+                        </>}
                         {profiles.map(item => (
                             <Melist key={item.userId} displayMode="minimized" condensedProfile={item} />
                         ))}

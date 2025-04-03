@@ -22,7 +22,7 @@ import { fetchProductImageUrl, fetchProfileImageUrl, replaceOrUploadProfileImage
 function Edit() {
     const [urlParams, setUrlParams] = useSearchParams()
     const [styles, setStyles] = useState<MelistStyles>({bgColor: "gray-100"})
-    const { listData, populateList } = useFetchMelist()
+    const { listData, populateList, isFetching } = useFetchMelist()
     const { userData, refetchUser } = useFetchUser() 
 
     // add product flow
@@ -83,7 +83,8 @@ function Edit() {
                 <div className="flex flex-col">
                     <div className="font-extrabold text-3xl mt-16 justify-self-start">Edit</div>
                     <div className="mt-4 flex gap-8">
-                        <Melist userData={userData} melistData={listData ? listData : undefined} displayMode="edit" styles={styles} />
+                        {!isFetching && <Melist userData={userData} melistData={listData ? listData : undefined} displayMode="edit" styles={styles} />}
+                        {isFetching && <Melist displayMode="loading" />}
                         <div className={`bg-gray-100 h-fit p-8 rounded-md items-center w-xl text-lg transition-[width] duration-100`}>
                             {(urlParams.get("view") == undefined || urlParams.get("view") == "") && (
                                 <>
