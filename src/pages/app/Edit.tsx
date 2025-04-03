@@ -82,7 +82,7 @@ function Edit() {
             <div className="flex justify-center">
                 <div className="flex flex-col">
                     <div className="font-extrabold text-3xl mt-16 justify-self-start">Edit</div>
-                    <div className="mt-4 flex gap-8">
+                    <div className="mt-4 flex gap-8 items-start">
                         {!isFetching && <Melist userData={userData} melistData={listData ? listData : undefined} displayMode="edit" styles={styles} />}
                         {isFetching && <Melist displayMode="loading" />}
                         <div className={`bg-gray-100 h-fit p-8 rounded-md items-center w-xl text-lg transition-[width] duration-100`}>
@@ -95,6 +95,7 @@ function Edit() {
                                             onClick={() => {setUrlParams((prev) => { 
                                                 // if at least one user-created section, prompt for choice
                                                 if (listData?.length == 1 && listData[0].section_name == "featured") {
+                                                    setSectionId(listData[0].section_id)
                                                     prev.set("view", "step1") 
                                                 } else {
                                                     prev.set("view", "step0") 

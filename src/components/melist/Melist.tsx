@@ -121,7 +121,7 @@ function MelistMyView({ user, data, setClicked } : { user: UserData, data: Melis
             {/* products */}
             <div>
                 {/* more products */}
-                {data.map(section => <Section key={section.section_id} section={section} />)}
+                {data.map(section => <Section mode="click" setClicked={setClicked} key={section.section_id} section={section} />)}
             </div>
 
             {/* buttons */}

@@ -58,6 +58,8 @@ function Home() {
             }
         }
 
+        console.log(formattedProfiles)
+
         setDiscoverProfiles(formattedProfiles)
         setIsLoadingProfiles(false)
     }

@@ -1,6 +1,6 @@
 import { ArrowLeftIcon } from "@heroicons/react/24/outline"
 import { useRef } from "react"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import { supabase } from "../../../supabase/client"
 
 function SignUp() {
@@ -8,6 +8,7 @@ function SignUp() {
     const usernameRef = useRef<HTMLInputElement>(null)
     const displayNameRef = useRef<HTMLInputElement>(null)
     const passwordRef = useRef<HTMLInputElement>(null)
+    const navigate = useNavigate()
 
     const handleClick = async () => {
         if (!emailRef.current || !usernameRef.current || !displayNameRef.current || !passwordRef.current) return
@@ -25,6 +26,7 @@ function SignUp() {
             console.log(error)
         } else {
             console.log('signed up user', data)
+            navigate("/")
         }
     }
     return (

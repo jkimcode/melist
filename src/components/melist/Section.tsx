@@ -7,8 +7,9 @@ interface SectionProps {
     section: SectionData
     mode?: string
     setHovered?: React.Dispatch<SetStateAction<ProductData | null>>
+    setClicked?: React.Dispatch<SetStateAction<ProductData | null>>
 }
-export function Section({section, mode, setHovered} : SectionProps) {
+export function Section({section, mode, setHovered, setClicked} : SectionProps) {
     return (
         <div className="mt-6 first:mt-0">
             <div className="font-semibold mb-2">{section.section_name}</div>
@@ -17,6 +18,9 @@ export function Section({section, mode, setHovered} : SectionProps) {
                 {section.products.map(productItem => {
                     if (mode == "hover") {
                         return <Product key={productItem.id} product={productItem} mode="hover" onHover={setHovered} />
+                    }
+                    if (mode == "click") {
+                        return <Product key={productItem.id} product={productItem} mode="click" onClick={setClicked} />
                     }
                     return <Product key={productItem.id} product={productItem} />
                 })}
