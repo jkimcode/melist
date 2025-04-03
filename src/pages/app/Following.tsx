@@ -6,7 +6,7 @@ import { supabase } from "../../supabase/client"
 import { CondensedProfile } from "../../common/types"
 
 function Following() {
-    const { userData } = useFetchUser()
+    const { userData } = useFetchUser(undefined, true)
     const [profiles, setProfiles] = useState<CondensedProfile[]>([]) 
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const getFollowing = async () => {

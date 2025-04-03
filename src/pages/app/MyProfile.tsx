@@ -12,8 +12,8 @@ import useFetchUser from "../../hooks/useFetchUser";
 function MyProfile() {
     const [clickedProduct, setClickedProduct] = useState<ProductData | null>(null);
     const [dropdown, setDropdown] = useState(false)
-    const { listData, isFetching } = useFetchMelist()
-    const { userData } = useFetchUser()
+    const { listData, isFetching } = useFetchMelist(undefined, true)
+    const { userData } = useFetchUser(undefined, true)
     const navigate = useNavigate()
 
     const logout = async () => {
@@ -35,7 +35,8 @@ function MyProfile() {
                             <div className={`bg-gray-100 h-fit p-6 rounded-md items-center ${clickedProduct ? "w-md" : "w-sm"} text-lg transition-[width] duration-100`}>
                                 {!clickedProduct && (
                                     <div className="flex items-center font-semibold">
-                                        <GlobeAmericasIcon className="size-6 mr-2" /> melist.com/kyliejenner
+                                        <GlobeAmericasIcon className="size-6 mr-2" /> 
+                                        <div>melist.com/{userData?.username}</div>
                                     </div>
                                 )}
                                 {clickedProduct && (
@@ -65,7 +66,6 @@ function MyProfile() {
                                     </div>
                                     {dropdown && (
                                         <div className="flex flex-col gap-2 mt-4 text-sm hover:cursor-pointer">
-                                            <div>set private</div>
                                             <div onClick={() => logout()}>logout</div>
                                         </div>
                                     )}

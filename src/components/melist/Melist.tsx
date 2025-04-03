@@ -67,7 +67,7 @@ function MelistMinimizedView({ data } : { data: CondensedProfile }) {
 
                     {/* buttons */}
                     <div className="flex gap-4">
-                        <Link to={`/${data.userId}`} className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">view all</Link>
+                        <Link to={`/${data.userId}?is_uuid=true`} className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">view all</Link>
                     </div>
                 </>
             )}
@@ -147,7 +147,7 @@ function MelistSearchView({ data } : { data: CondensedProfile }) {
 
             {/* buttons */}
             <div className="flex gap-4">
-                <Link to={`/${data.userId}`} className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">view all</Link>
+                <Link to={`/${data.userId}?is_uuid=true`} className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">view all</Link>
             </div>
         </div>
     )   
@@ -166,7 +166,7 @@ function MelistHomeView({ data } : { data: CondensedProfile }) {
 
             {/* buttons */}
             <div className="flex gap-4">
-                <Link to={`/${data.userId}`} className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">view all</Link>
+                <Link to={`/${data.userId}?is_uuid=true`} className="py-4 w-full bg-gray-200 flex justify-center items-center font-bold">view all</Link>
             </div>
         </div>
     )   

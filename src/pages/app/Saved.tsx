@@ -12,7 +12,7 @@ import Spinner from "../../components/icons/spinner"
 
 function Saved() {
     const [hoveredProduct, setHoveredProduct] = useState<ProductData | null>(null)
-    const { userData } = useFetchUser()
+    const { userData } = useFetchUser(undefined, true)
     const [savedProducts, setSavedProducts] = useState<ProductData[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -106,7 +106,7 @@ function Saved() {
                                 <div className={`bg-gray-100 p-8 rounded-md items-center w-xl text-lg h-fit`}>
                                     <div className="text-sm">
                                         you found this on @
-                                        <Link className="hover:underline" to={`/${productToSrc.find(item => item.productId == hoveredProduct.id)?.srcUserId}`}>
+                                        <Link className="hover:underline" to={`/${productToSrc.find(item => item.productId == hoveredProduct.id)?.srcUserId}?is_uuid=true`}>
                                             {productToSrc.find(item => item.productId == hoveredProduct.id)?.srcUsername}
                                         </Link>
                                     </div>
